@@ -311,7 +311,7 @@
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object'">
       <v-subheader v-if="fullSchema.title" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
-        {{ fullSchema.title }}
+        Items
         &nbsp;
         <v-icon v-if="foldable && folded">
           arrow_drop_down
@@ -454,7 +454,7 @@
     <!-- Tuples array sub container -->
     <div v-else-if="fullSchema.type === 'array' && Array.isArray(fullSchema.items)">
       <v-subheader v-if="fullSchema.title" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
-        {{ fullSchema.title }}
+        Items
         &nbsp;
         <v-icon v-if="foldable && folded">
           arrow_drop_down
