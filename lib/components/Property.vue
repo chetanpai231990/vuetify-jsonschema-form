@@ -270,7 +270,22 @@
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
-
+    <!-- Octet String fields -->
+      <v-text-field v-else-if="fullSchema.type === 'octet string'"
+                    v-model.number="modelWrapper[modelKey]"
+                    :name="fullKey"
+                    :label="label"
+                    :min="fullSchema.minimum"
+                    :max="fullSchema.maximum"
+                    :disabled="disabled"
+                    :required="required"
+                    :rules="rules"
+                    type="number"
+                    @change="change"
+                    @input="input"
+      >
+      <tooltip slot="append-outer" :html-description="htmlDescription" />
+    </v-text-field>
     <!-- Simple boolean field -->
     <v-checkbox v-else-if="fullSchema.type === 'boolean'"
                 v-model="modelWrapper[modelKey]"
