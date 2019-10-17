@@ -1,8 +1,45 @@
 <template>
   <!-- Hide const ? Or make a readonly field -->
   <div v-if="fullSchema && fullSchema.const === undefined && fullSchema['x-display'] !== 'hidden'" class="vjsf-property">
+    
+    <!-- Datetime picker -->
+    <v-layout v-if="schema.type === 'date-time'" row>
+      <v-flex fluid>
+        <v-text-field
+          v-if="disabled"
+          :value="modelWrapper[modelKey]"
+          :label="label"
+          :name="fullKey"
+          :hint="schema.description"
+          :required="required"
+          :rules="rules"
+          prepend-icon="event"
+          readonly
+        />
+        <v-datetime-picker
+          v-else
+          v-model="modelWrapper[modelKey]"
+          :label="label"
+          prepend-icon="event"
+          @change="change"
+          @input="input"
+          
+        />
+        <v-text-field
+          :value="modelWrapper[modelKey]"
+          :name="fullKey"
+          :label="label"
+          :disabled="disabled"
+          :required="required"
+          :rules="rules"
+          
+        />
+      <tooltip slot="append-outer" :html-description="htmlDescription" />
+      </v-flex>
+    </v-layout>
+    
     <!-- Date picker -->
-    <v-menu v-if="fullSchema.type === 'string' && ['date', 'date-time'].includes(fullSchema.format)" ref="menu" v-model="menu" :close-on-content-click="false"
+    <v-menu v-else-if="fullSchema.type === 'string' && schema.format === 'date'" ref="menu" v-model="menu" :close-on-content-click="false"
             :nudge-right="40"
             :return-value.sync="modelWrapper[modelKey]"
             :disabled="disabled"
@@ -270,22 +307,24 @@
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
+
     <!-- Octet String fields -->
-      <v-text-field v-else-if="fullSchema.type === 'octet string'"
-                    v-model.number="modelWrapper[modelKey]"
-                    :name="fullKey"
-                    :label="label"
-                    :min="fullSchema.minimum"
-                    :max="fullSchema.maximum"
-                    :disabled="disabled"
-                    :required="required"
-                    :rules="rules"
-                    type="number"
-                    @change="change"
-                    @input="input"
-      >
+    <v-text-field v-else-if="fullSchema.type === 'octet string'"
+                  v-model.number="modelWrapper[modelKey]"
+                  :name="fullKey"
+                  :label="label"
+                  :min="fullSchema.minimum"
+                  :max="fullSchema.maximum"
+                  :disabled="disabled"
+                  :required="required"
+                  :rules="rules"
+                  type="number"
+                  @change="change"
+                  @input="input"
+    >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
+
     <!-- Simple boolean field -->
     <v-checkbox v-else-if="fullSchema.type === 'boolean'"
                 v-model="modelWrapper[modelKey]"
@@ -325,8 +364,10 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object'">
-      <v-subheader v-if="fullSchema.title" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
-        Items
+      <v-subheader :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+        
+        {{ fullSchema.title !=null ? label:modelKey }}
+        
         &nbsp;
         <v-icon v-if="foldable && folded">
           arrow_drop_down
@@ -468,8 +509,8 @@
 
     <!-- Tuples array sub container -->
     <div v-else-if="fullSchema.type === 'array' && Array.isArray(fullSchema.items)">
-      <v-subheader v-if="fullSchema.title" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
-        Items
+      <v-subheader :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+        {{ fullSchema.title !=null ? label:modelKey }}
         &nbsp;
         <v-icon v-if="foldable && folded">
           arrow_drop_down
@@ -543,6 +584,7 @@
       </v-container>
     </div>
 
+
     <p v-else-if="options.debug">
       Unsupported type "{{ fullSchema.type }}" - {{ fullSchema }}
     </p>
@@ -583,7 +625,28 @@ export default {
         `
     }
   },
+  filters:{
+
+    timestampfilter(val){
+      var d = new Date(0);
+      d.setUTCSeconds(new Date(val).getTime());
+
+      return d;
+
+    }
+  },
   computed: {
+    formattedDatetime(){
+      // var d = new Date(0);
+      // d.setUTCSeconds(
+      //   Number(this.datetime) === 1
+      //     ? new Date().getTime() / 1000
+      //     : new Date(this.datetime).getTime()
+      // );
+      // this.datetime = d;
+      // console.log("Date Time Format" + this.datetime);
+      // return this.datetime ? moment(this.datetime).format(this.format) : "";
+    },
     fullSchema() {
       return schemaUtils.prepareFullSchema(this.schema, this.modelWrapper, this.modelKey)
     },
@@ -702,6 +765,12 @@ export default {
       this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
     },
     input() {
+      //var d = new Date(0);
+      //d.setUTCSeconds(new Date(this.modelWrapper[this.modelKey]).getTime()/1000);
+
+      //console.log('Date Time '+d);
+      this.modelWrapper[this.modelKey]=Math.round(new Date(this.modelWrapper[this.modelKey]).getTime());
+
       this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
     },
     defaultValue(schema) {
