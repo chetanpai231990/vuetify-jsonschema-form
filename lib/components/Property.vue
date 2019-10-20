@@ -682,7 +682,7 @@ export default {
       return this.options.disableAll
     },
     foldable() {
-      return this.options.autoFoldObjects && this.parentKey && this.fullSchema.title
+      return this.options.autoFoldObjects && this.parentKey
     },
     oneOfConstProp() {
       if (!this.fullSchema.oneOf) return
@@ -769,9 +769,9 @@ export default {
       //d.setUTCSeconds(new Date(this.modelWrapper[this.modelKey]).getTime()/1000);
 
       //console.log('Date Time '+d);
-      this.modelWrapper[this.modelKey]=Math.round(new Date(this.modelWrapper[this.modelKey]).getTime());
+      //this.modelWrapper[this.modelKey]=Math.round(new Date(this.modelWrapper[this.modelKey]).getTime());
 
-      this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
+      //this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
     },
     defaultValue(schema) {
       if (schema.type === 'object' && !schema['x-fromUrl'] && !schema['x-fromData']) return {}
