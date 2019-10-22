@@ -24,7 +24,8 @@
     "property-expr": "^1.5.1",
     "vue-color": "^2.7.0",
     "vue-swatches": "^1.0.3",
-    "vuedraggable": "^2.23.0"
+    "vuedraggable": "^2.23.0",
+    "vuetify-datetime-picker": "^2.0.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
