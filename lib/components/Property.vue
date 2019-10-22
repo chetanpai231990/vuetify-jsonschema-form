@@ -3,7 +3,7 @@
   <div v-if="fullSchema && fullSchema.const === undefined && fullSchema['x-display'] !== 'hidden'" class="vjsf-property">
     
     <!-- Datetime picker -->
-    <v-layout v-if="schema.type === 'date-time'" row>
+    <v-layout v-if="schema.type === 'timestamp'" row>
       <v-flex fluid>
         <v-text-field
           v-if="disabled"
@@ -22,16 +22,7 @@
           :label="label"
           prepend-icon="event"
           @change="change"
-          @input="input"
-          
-        />
-        <v-text-field
-          :value="modelWrapper[modelKey]"
-          :name="fullKey"
-          :label="label"
-          :disabled="disabled"
-          :required="required"
-          :rules="rules"
+          @input="dateTimeChanged"
           
         />
       <tooltip slot="append-outer" :html-description="htmlDescription" />
@@ -116,8 +107,8 @@
 
     <!-- Select field based on an enum (array or simple value) -->
     <template v-else-if="(fullSchema.type === 'array' && fullSchema.items.enum) || fullSchema.enum">
-      <!--{{ selectItems }}<br>
-      {{ modelWrapper[modelKey] }}-->
+      {{ selectItems }}<br>
+      {{ modelWrapper[modelKey] }}
       <v-select
         v-model="modelWrapper[modelKey]"
         :items="selectItems"
@@ -308,9 +299,19 @@
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
 
+  <!-- IP Address fields -->
+    <vue-ip v-else-if="fullSchema.type === 'ip'"
+          :ip="modelWrapper[modelKey]"
+          :index="index"
+          :on-change="ipChange"
+          :placeholder="true"
+        >
+          {{ label }}
+    </vue-ip>
+
     <!-- Octet String fields -->
     <v-text-field v-else-if="fullSchema.type === 'octet string'"
-                  v-model.number="modelWrapper[modelKey]"
+                  :value="modelWrapper[modelKey] | convertHextoAscii"
                   :name="fullKey"
                   :label="label"
                   :min="fullSchema.minimum"
@@ -318,9 +319,7 @@
                   :disabled="disabled"
                   :required="required"
                   :rules="rules"
-                  type="number"
-                  @change="change"
-                  @input="input"
+                  @input="octetStringChanged($event)"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
@@ -597,12 +596,13 @@ import SelectItem from './SelectItem.vue'
 import Tooltip from './Tooltip.vue'
 import schemaUtils from '../utils/schema'
 import selectUtils from '../utils/select'
+import VueIp from './IPComponent.vue'
 const matchAll = require('match-all')
 const md = require('markdown-it')()
 
 export default {
   name: 'Property',
-  components: { SelectIcon, SelectItem, Tooltip },
+  components: { SelectIcon, SelectItem, Tooltip, VueIp },
   props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options'],
   data() {
     return {
@@ -633,7 +633,18 @@ export default {
 
       return d;
 
+    },
+    convertHextoAscii(val) {
+      if(val!=null){
+        var hex = val.toString();
+        var asciiString = "";
+        for (var i = 0; i < hex.length; i += 2) {
+          asciiString += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+        }
+        return asciiString;
+      }
     }
+    
   },
   computed: {
     formattedDatetime(){
@@ -683,6 +694,7 @@ export default {
     },
     foldable() {
       return this.options.autoFoldObjects && this.parentKey
+      // && this.fullSchema.title
     },
     oneOfConstProp() {
       if (!this.fullSchema.oneOf) return
@@ -764,14 +776,41 @@ export default {
       this.updateSelectItems()
       this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
     },
+    convertAsciitoHex(val) {
+      //for Octect string
+      if(val!=null){
+        var arr = [];
+        for (var i = 0, l = val.length; i < l; i++) {
+          var hex = Number(val.charCodeAt(i)).toString(16);
+          arr.push(hex);
+        }
+        return arr.join("");
+      }
+    },
+    ipChange(ip, index, valid) {
+      //Logic: Convert IP to Integer
+      var val =
+        ip.split(".").reduce(function(ipInt, octet) {
+          return (ipInt << 8) + parseInt(octet, 10);
+        }, 0) >>> 0;
+
+      if (valid) {
+          this.modelWrapper[this.modelKey]= val
+          this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] });
+      }
+    },
+    octetStringChanged(event){
+      //Handle here.
+      console.log('Changed Value'+event);
+      this.modelWrapper[this.modelKey]= this.convertAsciitoHex(event);
+      this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] });
+    },
+    dateTimeChanged(){
+      this.modelWrapper[this.modelKey]= new Date(this.modelWrapper[this.modelKey]).getTime();
+      this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: Math.floor(new Date(this.modelWrapper[this.modelKey]).getTime()/1000) })
+    },
     input() {
-      //var d = new Date(0);
-      //d.setUTCSeconds(new Date(this.modelWrapper[this.modelKey]).getTime()/1000);
-
-      //console.log('Date Time '+d);
-      //this.modelWrapper[this.modelKey]=Math.round(new Date(this.modelWrapper[this.modelKey]).getTime());
-
-      //this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
+      
     },
     defaultValue(schema) {
       if (schema.type === 'object' && !schema['x-fromUrl'] && !schema['x-fromData']) return {}
