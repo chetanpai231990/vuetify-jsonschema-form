@@ -597,12 +597,13 @@ import Tooltip from './Tooltip.vue'
 import schemaUtils from '../utils/schema'
 import selectUtils from '../utils/select'
 import VueIp from './IPComponent.vue'
+import DateTimeComponent from './DateTimeComponent.vue'
 const matchAll = require('match-all')
 const md = require('markdown-it')()
 
 export default {
   name: 'Property',
-  components: { SelectIcon, SelectItem, Tooltip, VueIp },
+  components: { SelectIcon, SelectItem, Tooltip, VueIp, 'v-datetime-picker':DateTimeComponent },
   props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options'],
   data() {
     return {
