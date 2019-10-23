@@ -18,6 +18,7 @@
         />
         <v-datetime-picker
           v-else
+          :datetime="modelWrapper[modelKey]"
           v-model="modelWrapper[modelKey]"
           :label="label"
           prepend-icon="event"
@@ -807,7 +808,7 @@ export default {
       this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] });
     },
     dateTimeChanged(){
-      this.modelWrapper[this.modelKey]= new Date(this.modelWrapper[this.modelKey]).getTime();
+      this.modelWrapper[this.modelKey]= Math.floor(new Date(this.modelWrapper[this.modelKey]).getTime()/1000);
       this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: Math.floor(new Date(this.modelWrapper[this.modelKey]).getTime()/1000) })
     },
     input() {
