@@ -9,7 +9,7 @@
     <div style="color:grey">
       <slot></slot>
     </div>
-    <div class="segment" v-for="(segment, index) in ipCopy" :key="index">
+    <div class="segment" style="display: inline-block" v-for="(segment, index) in ipCopy" :key="index">
       <input
         style="text-align: center;  width: 40px;  outline: none;  border: none;  color: black;"
         type="number"
@@ -375,9 +375,7 @@ export default {
 .vue-ip.show-port .segment:last-of-type:after {
   content: "";
 }
-.vue-ip .segment {
-  display: inline-block;
-}
+
 .vue-ip .segment:not(:last-of-type):after {
   content: ".";
   display: inline-block;
