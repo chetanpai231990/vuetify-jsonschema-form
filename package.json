@@ -25,7 +25,7 @@
     "vue-color": "^2.7.0",
     "vue-swatches": "^1.0.3",
     "vuedraggable": "^2.23.0",
-    "vuetify-datetime-picker": "^2.0.3"
+    "moment": "^2.24.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
