@@ -234,9 +234,9 @@ export default {
 
       var d = new Date(0);
       d.setUTCSeconds(
-        Number(this.datetime) === 1
-          ? new Date().getTime() / 1000
-          : new Date(this.datetime).getTime()
+        Number(this.datetime) === 1 || Number(this.datetime) === 0
+          ? Math.floor(new Date().getTime()/1000)
+          : Math.floor(new Date(this.datetime).getTime())
       );
       this.datetime = d;
       console.log("Date Time Format" + this.datetime);
