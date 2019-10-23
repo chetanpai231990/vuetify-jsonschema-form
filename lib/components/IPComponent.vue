@@ -1,9 +1,7 @@
 <template>
   <span
     class="vue-ip"
-    :class="{
-      'show-port': portCopy !== false,
-      'material-theme': theme === 'material',
+    :class="{'material-theme': theme === 'material',
       active: active,
       valid: valid
     }"
@@ -13,6 +11,7 @@
     </div>
     <div class="segment" v-for="(segment, index) in ipCopy" :key="index">
       <input
+        style="text-align: center;  width: 40px;  outline: none;  border: none;  color: black;"
         type="number"
         v-model="ipCopy[index]"
         :disabled="readonly"
@@ -383,11 +382,5 @@ export default {
   content: ".";
   display: inline-block;
 }
-.vue-ip input {
-  text-align: center;
-  width: 40px;
-  outline: none;
-  border: none;
-  color: black;
-}
+
 </style>
