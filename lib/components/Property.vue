@@ -108,8 +108,8 @@
 
     <!-- Select field based on an enum (array or simple value) -->
     <template v-else-if="(fullSchema.type === 'array' && fullSchema.items.enum) || fullSchema.enum">
-      {{ selectItems }}<br>
-      {{ modelWrapper[modelKey] }}
+      <!-- {{ selectItems }}<br>
+      {{ modelWrapper[modelKey] }} -->
       <v-select
         v-model="modelWrapper[modelKey]"
         :items="selectItems"
@@ -309,6 +309,21 @@
         >
           {{ label }}
     </vue-ip>
+
+    <!-- Coordinates fields -->
+    <v-text-field v-else-if="fullSchema.type === 'coordinates'"
+                  :value="modelWrapper[modelKey] | convertCoordinates"
+                  :name="fullKey"
+                  :label="label"
+                  :min="fullSchema.minimum"
+                  :max="fullSchema.maximum"
+                  :disabled="disabled"
+                  :required="required"
+                  :rules="rules"
+                  @input="coordinatesToInteger($event)"
+    >
+      <tooltip slot="append-outer" :html-description="htmlDescription" />
+    </v-text-field>
 
     <!-- Octet String fields -->
     <v-text-field v-else-if="fullSchema.type === 'octet string'"
@@ -645,6 +660,9 @@ export default {
         }
         return asciiString;
       }
+    },
+    convertCoordinates(val){
+      return val * .000001 ;
     }
     
   },
@@ -805,6 +823,10 @@ export default {
       //Handle here.
       console.log('Changed Value'+event);
       this.modelWrapper[this.modelKey]= this.convertAsciitoHex(event);
+      this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] });
+    },
+    coordinatesToInteger(event){
+      this.modelWrapper[this.modelKey]= Math.floor(event / .000001); //multiple by 1 million
       this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] });
     },
     dateTimeChanged(){
