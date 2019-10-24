@@ -296,8 +296,42 @@
                   type="number"
                   @change="change"
                   @input="input"
+                  @focus="dialog=false"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
+      <template v-slot:append-outer>
+        <v-menu transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+          <template v-slot:activator="{ on }">
+            <span v-on="on">
+              <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+            </span>
+          </template>
+          <v-card-text @click.stop="" style="background-color: whitesmoke" >
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs20 sm6 md4>
+                  <v-text-field label="Name" :value="label" readonly></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-select
+                    v-model="selectedShowAsItem"
+                    :items="showAsItems"
+                    label="Show As"
+                  ></v-select>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions style="background-color: whitesmoke">
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat >Cancel</v-btn>
+            <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
+          </v-card-actions> 
+        </v-menu>
+      </template>
     </v-text-field>
 
   <!-- IP Address fields -->
@@ -379,7 +413,7 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object'">
-      <v-subheader :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader v-if="modelKey!='root'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         
         {{ fullSchema.title !=null ? label:modelKey }}
         
@@ -634,12 +668,15 @@ export default {
       loading: false,
       folded: true,
       showColorPicker: false,
+      dialog: true,
       subModels: {}, // a container for objects from root oneOfs and allOfs
       // maintain vuetify1 compatibility without triggering warning on flat attribute for vuetify 2
       oldFlat: `
         background-color: none !important;
         border-color: none !important;
-        `
+        `,
+      selectedShowAsItem:'',
+      showAsItems:["timestamp","coordinates","ip"]
     }
   },
   filters:{
@@ -791,6 +828,10 @@ export default {
       if (JSON.stringify(selectItems) !== JSON.stringify(this.selectItems)) {
         this.selectItems = selectItems
       }
+    },
+    typechange(payload){
+      console.log('type change items '+payload.name, payload.type, payload.show_as);
+      this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as});
     },
     change() {
       this.updateSelectItems()
@@ -1002,5 +1043,6 @@ export default {
 .vjsf-property .color-picker-trigger-empty {
   background: linear-gradient(to top right,transparent 0,transparent calc(50% - 2.4px),#de080a 50%,transparent calc(50% + 2.4px),transparent);
 }
+
 
 </style>
