@@ -10,6 +10,7 @@
     @error="e => $emit('error', e)"
     @change="e => $emit('change', e)"
     @input="e => $emit('input', e)"
+    @typechange="e => $emit('typechange', e)"
   />
 </template>
 
