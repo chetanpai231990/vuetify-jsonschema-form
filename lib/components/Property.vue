@@ -269,7 +269,7 @@
     </v-text-field>
 
     <!-- Simple text field -->
-    <v-text-field v-else-if="fullSchema.type === 'string'"
+    <v-text-field v-else-if="fullSchema.type === 'string' || fullSchema.type === 'utf8string'"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
