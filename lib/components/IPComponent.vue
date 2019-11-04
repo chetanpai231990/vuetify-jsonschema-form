@@ -98,7 +98,7 @@ export default {
       this.active = true;
 
       // Clear it
-      this.ipCopy[index] = "";
+      //this.ipCopy[index] = "";
 
       // Update the change
       this.changed();
