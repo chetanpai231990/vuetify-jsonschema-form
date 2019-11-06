@@ -24,6 +24,7 @@
           prepend-icon="event"
           @change="change"
           @input="dateTimeChanged"
+          :disabled="readonly"
           
         />
       <tooltip slot="append-outer" :html-description="htmlDescription" />
@@ -592,7 +593,7 @@
     <div v-else-if="fullSchema.type === 'array'">
       <v-layout row class="mt-2 mb-1 pr-1">
         <v-subheader>{{ label }}</v-subheader>
-        <v-btn v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input()">
+        <v-btn v-if="!(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input()">
           <v-icon>add</v-icon>
         </v-btn>
         <v-spacer />
@@ -748,6 +749,9 @@ export default {
     },
     disabled() {
       return this.options.disableAll
+    },
+    readonly() {
+      return this.options.readonly
     },
     foldable() {
       return this.options.autoFoldObjects && this.parentKey
