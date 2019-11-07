@@ -24,7 +24,7 @@
           prepend-icon="event"
           @change="change"
           @input="dateTimeChanged"
-          :disabled="readonly"
+          :readonly="readonly"
           
         />
       <tooltip slot="append-outer" :html-description="htmlDescription" />
@@ -119,6 +119,7 @@
         :required="required"
         :rules="rules"
         :disabled="disabled"
+        :readonly="readonly"
         :clearable="!required"
         :multiple="fullSchema.type === 'array'"
         @change="change"
@@ -277,6 +278,7 @@
                   :disabled="disabled"
                   :required="required"
                   :rules="rules"
+                  :readonly="readonly"
                   @change="change"
                   @input="input"
     >
@@ -294,6 +296,7 @@
                   :disabled="disabled"
                   :required="required"
                   :rules="rules"
+                  :readonly="readonly"
                   type="number"
                   @change="change"
                   @input="input"
@@ -301,7 +304,7 @@
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
       <template v-slot:append-outer>
-        <v-menu transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+        <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
           <template v-slot:activator="{ on }">
             <span v-on="on">
               <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
@@ -341,6 +344,7 @@
           :index="index"
           :on-change="ipChange"
           :placeholder="true"
+          :readonly="readonly"
         >
           {{ label }}
     </vue-ip>
@@ -353,6 +357,7 @@
                   :min="fullSchema.minimum"
                   :max="fullSchema.maximum"
                   :disabled="disabled"
+                  :readonly="readonly"
                   :required="required"
                   :rules="rules"
                   @input="coordinatesToInteger($event)"
@@ -368,6 +373,7 @@
                   :min="fullSchema.minimum"
                   :max="fullSchema.maximum"
                   :disabled="disabled"
+                  :readonly="readonly"
                   :required="required"
                   :rules="rules"
                   @input="octetStringChanged($event)"
@@ -381,6 +387,7 @@
                 :label="label"
                 :name="fullKey"
                 :disabled="disabled"
+                :readonly="readonly"
                 :required="required"
                 :rules="rules"
                 @change="change"
@@ -593,7 +600,7 @@
     <div v-else-if="fullSchema.type === 'array'">
       <v-layout row class="mt-2 mb-1 pr-1">
         <v-subheader>{{ label }}</v-subheader>
-        <v-btn v-if="!(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input()">
+        <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input()">
           <v-icon>add</v-icon>
         </v-btn>
         <v-spacer />
@@ -1050,3 +1057,4 @@ export default {
 
 
 </style>
+
