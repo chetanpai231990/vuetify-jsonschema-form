@@ -613,12 +613,12 @@
             <v-flex v-for="(itemModel, i) in modelWrapper[modelKey]" :key="i" xs12>
               <v-card class="array-card">
                 <v-card-title primary-title class="pa-0">
-                  <v-btn v-if="!disabled && fullSchema['x-sortable'] !== false" icon class="handle">
+                  <v-btn :disabled="readonly" v-if="!disabled && fullSchema['x-sortable'] !== false" icon class="handle">
                     <v-icon>reorder</v-icon>
                   </v-btn>
                   <span v-if="itemTitle && modelWrapper[modelKey][i]">{{ modelWrapper[modelKey][i][itemTitle] }}</span>
                   <v-spacer />
-                  <v-btn v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="warning" @click="modelWrapper[modelKey].splice(i, 1); change(); input()">
+                  <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="warning" @click="modelWrapper[modelKey].splice(i, 1); change(); input()">
                     <v-icon>delete</v-icon>
                   </v-btn>
                 </v-card-title>
