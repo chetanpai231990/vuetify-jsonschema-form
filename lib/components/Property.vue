@@ -3,7 +3,7 @@
   <div v-if="fullSchema && fullSchema.const === undefined && fullSchema['x-display'] !== 'hidden'" class="vjsf-property">
     
     <!-- Datetime picker -->
-    <v-layout v-if="schema.type === 'timestamp'" row>
+    <v-layout v-if="schema.show_as === 'timestamp'" row>
       <v-flex fluid>
         <v-text-field
           v-if="disabled"
@@ -25,14 +25,13 @@
           @change="change"
           @input="dateTimeChanged"
           :readonly="readonly"
-          
         />
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
       </v-flex>
     </v-layout>
     
     <!-- Date picker -->
-    <v-menu v-else-if="fullSchema.type === 'string' && schema.format === 'date'" ref="menu" v-model="menu" :close-on-content-click="false"
+    <v-menu v-else-if="fullSchema.show_as === 'string' && schema.format === 'date'" ref="menu" v-model="menu" :close-on-content-click="false"
             :nudge-right="40"
             :return-value.sync="modelWrapper[modelKey]"
             :disabled="disabled"
@@ -108,7 +107,7 @@
     </template>
 
     <!-- Select field based on an enum (array or simple value) -->
-    <template v-else-if="(fullSchema.type === 'array' && fullSchema.items.enum) || fullSchema.enum">
+    <template v-else-if="(fullSchema.show_as === 'array' && fullSchema.items.enum) || fullSchema.enum">
       <!-- {{ selectItems }}<br>
       {{ modelWrapper[modelKey] }} -->
       <v-select
@@ -121,14 +120,14 @@
         :disabled="disabled"
         :readonly="readonly"
         :clearable="!required"
-        :multiple="fullSchema.type === 'array'"
+        :multiple="fullSchema.show_as === 'array'"
         @change="change"
         @input="input"
       >
         <template slot="selection" slot-scope="data">
           <div class="v-select__selection v-select__selection--comma">
             <select-icon v-if="itemIcon" :value="data.item" />
-            <span v-if="![null, undefined].includes(data.item)">{{ data.item + (fullSchema.type === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
+            <span v-if="![null, undefined].includes(data.item)">{{ data.item + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
           </div>
         </template>
         <template slot="item" slot-scope="data">
@@ -151,7 +150,7 @@
         :disabled="disabled"
         :rules="rules"
         :clearable="!required"
-        :multiple="fullSchema.type === 'array'"
+        :multiple="fullSchema.show_as === 'array'"
         :item-text="itemTitle"
         :item-value="itemKey"
         @change="change"
@@ -160,7 +159,7 @@
         <template slot="selection" slot-scope="data">
           <div class="v-select__selection v-select__selection--comma">
             <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
-            <span v-if="![null, undefined].includes(data.item[itemTitle])">{{ data.item[itemTitle] + (fullSchema.type === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
+            <span v-if="![null, undefined].includes(data.item[itemTitle])">{{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
           </div>
         </template>
         <template slot="item" slot-scope="data">
@@ -183,17 +182,17 @@
               :rules="rules"
               :item-text="itemTitle"
               :item-value="itemKey"
-              :return-object="(fullSchema.type === 'array' && fullSchema.items.type === 'object') || fullSchema.type === 'object'"
+              :return-object="(fullSchema.show_as === 'array' && fullSchema.items.show_as === 'object') || fullSchema.show_as === 'object'"
               :clearable="!required"
               :loading="loading"
-              :multiple="fullSchema.type === 'array'"
+              :multiple="fullSchema.show_as === 'array'"
               @change="change"
               @input="input"
     >
       <template slot="selection" slot-scope="data">
         <div class="v-select__selection v-select__selection--comma">
           <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
-          <span v-if="![null, undefined].includes(data.item[itemTitle])">{{ data.item[itemTitle] + (fullSchema.type === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
+          <span v-if="![null, undefined].includes(data.item[itemTitle])">{{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
         </div>
       </template>
       <template slot="item" slot-scope="data">
@@ -216,19 +215,19 @@
                     :rules="rules"
                     :item-text="itemTitle"
                     :item-value="itemKey"
-                    :return-object="(fullSchema.type === 'array' && fullSchema.items.type === 'object') || fullSchema.type === 'object'"
+                    :return-object="(fullSchema.show_as === 'array' && fullSchema.items.show_as === 'object') || fullSchema.show_as === 'object'"
                     :clearable="!required"
                     :filter="() => true"
                     :placeholder="options.searchMessage"
                     :loading="loading"
-                    :multiple="fullSchema.type === 'array'"
+                    :multiple="fullSchema.show_as === 'array'"
                     @change="change"
                     @input="input"
     >
       <template slot="selection" slot-scope="data">
         <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
         <div v-if="![null, undefined].includes(data.item[itemTitle])">
-          {{ data.item[itemTitle] + (fullSchema.type === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}
+          {{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}
         </div>
       </template>
       <template slot="item" slot-scope="data">
@@ -240,7 +239,7 @@
 
     <!-- Long text field in a textarea -->
     <v-textarea
-      v-else-if="fullSchema.type === 'string' && (fullSchema.maxLength && fullSchema.maxLength > 1000 && fullSchema['x-display'] !== 'single-line')"
+      v-else-if="fullSchema.show_as === 'string' && (fullSchema.maxLength && fullSchema.maxLength > 1000 && fullSchema['x-display'] !== 'single-line')"
       v-model="modelWrapper[modelKey]"
       :name="fullKey"
       :label="label"
@@ -256,7 +255,7 @@
     </v-textarea>
 
     <!-- text field displayed as password -->
-    <v-text-field v-else-if="fullSchema.type === 'string' && fullSchema['x-display'] === 'password'"
+    <v-text-field v-else-if="fullSchema.show_as === 'string' && fullSchema['x-display'] === 'password'"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -271,7 +270,7 @@
     </v-text-field>
 
     <!-- Simple text field -->
-    <v-text-field v-else-if="fullSchema.type === 'string' || fullSchema.type === 'utf8string'"
+    <v-text-field v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string'"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -286,13 +285,13 @@
     </v-text-field>
 
     <!-- Simple number fields -->
-    <v-text-field v-else-if="fullSchema.type === 'number' || fullSchema.type === 'integer'"
+    <v-text-field v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'"
                   v-model.number="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
                   :min="fullSchema.minimum"
                   :max="fullSchema.maximum"
-                  :step="fullSchema.type === 'integer' ? 1 : 0.01"
+                  :step="fullSchema.show_as === 'integer' ? 1 : 0.01"
                   :disabled="disabled"
                   :required="required"
                   :rules="rules"
@@ -332,6 +331,7 @@
           <v-card-actions style="background-color: whitesmoke">
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" flat >Cancel</v-btn>
+            <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn>
             <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
           </v-card-actions> 
         </v-menu>
@@ -339,7 +339,7 @@
     </v-text-field>
 
   <!-- IP Address fields -->
-    <vue-ip v-else-if="fullSchema.type === 'ip'"
+    <vue-ip v-else-if="fullSchema.show_as === 'ip'"
           :ip="modelWrapper[modelKey]"
           :index="index"
           :on-change="ipChange"
@@ -350,7 +350,7 @@
     </vue-ip>
 
     <!-- Coordinates fields -->
-    <v-text-field v-else-if="fullSchema.type === 'coordinates'"
+    <v-text-field v-else-if="fullSchema.show_as === 'coordinates'"
                   :value="modelWrapper[modelKey] | convertCoordinates"
                   :name="fullKey"
                   :label="label"
@@ -366,7 +366,7 @@
     </v-text-field>
 
     <!-- Octet String fields -->
-    <v-text-field v-else-if="fullSchema.type === 'octet string'"
+    <v-text-field v-else-if="fullSchema.show_as === 'octet string'"
                   :value="modelWrapper[modelKey] | convertHextoAscii"
                   :name="fullKey"
                   :label="label"
@@ -382,7 +382,7 @@
     </v-text-field>
 
     <!-- Simple boolean field -->
-    <v-checkbox v-else-if="fullSchema.type === 'boolean'"
+    <v-checkbox v-else-if="fullSchema.show_as === 'boolean'"
                 v-model="modelWrapper[modelKey]"
                 :label="label"
                 :name="fullKey"
@@ -398,7 +398,7 @@
 
     <!-- Simple strings array -->
     <v-combobox
-      v-else-if="fullSchema.type === 'array' && fullSchema.items.type === 'string'"
+      v-else-if="fullSchema.show_as === 'array' && fullSchema.items.show_as === 'string'"
       v-model="modelWrapper[modelKey]"
       :name="fullKey"
       :label="label"
@@ -420,7 +420,7 @@
     </v-combobox>
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
-    <div v-else-if="fullSchema.type === 'object'">
+    <div v-else-if="fullSchema.show_as === 'object'">
       <v-subheader v-if="modelKey!='root'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         
         {{ fullSchema.title !=null ? label:modelKey }}
@@ -450,6 +450,7 @@
                     @error="e => $emit('error', e)"
                     @change="e => $emit('change', e)"
                     @input="e => $emit('input', e)"
+                    @typechange="e => $emit('typechange', e)"
           />
 
           <!-- Sub containers for allOfs -->
@@ -478,6 +479,7 @@
                       @error="e => $emit('error', e)"
                       @change="e => $emit('change', e)"
                       @input="e => $emit('input', e)"
+                      @typechange="e => $emit('typechange', e)"
                     />
                   </v-expansion-panel-content>
                 </v-expansion-panel>
@@ -503,6 +505,7 @@
                         @error="e => $emit('error', e)"
                         @change="e => $emit('change', e)"
                         @input="e => $emit('input', e)"
+                        @typechange="e => $emit('typechange', e)"
                       />
                     </v-card-text>
                   </v-card>
@@ -522,6 +525,7 @@
                 @error="e => $emit('error', e)"
                 @change="e => $emit('change', e)"
                 @input="e => $emit('input', e)"
+                @typechange="e => $emit('typechange', e)"
               />
             </template>
           </template>
@@ -557,6 +561,7 @@
                 @error="e => $emit('error', e)"
                 @change="e => $emit('change', e)"
                 @input="e => $emit('input', e)"
+                @typechange="e => $emit('typechange', e)"
               />
             </template>
           </template>
@@ -565,7 +570,7 @@
     </div>
 
     <!-- Tuples array sub container -->
-    <div v-else-if="fullSchema.type === 'array' && Array.isArray(fullSchema.items)">
+    <div v-else-if="fullSchema.show_as === 'array' && Array.isArray(fullSchema.items)">
       <v-subheader :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         {{ fullSchema.title !=null ? label:modelKey }}
         &nbsp;
@@ -591,13 +596,14 @@
                     @error="e => $emit('error', e)"
                     @change="e => $emit('change', e)"
                     @input="e => $emit('input', e)"
+                    @typechange="e => $emit('typechange', e)"
           />
         </div>
       </v-slide-y-transition>
     </div>
 
     <!-- Dynamic size array of complex types sub container -->
-    <div v-else-if="fullSchema.type === 'array'">
+    <div v-else-if="fullSchema.show_as === 'array'">
       <v-layout row class="mt-2 mb-1 pr-1">
         <v-subheader>{{ label }}</v-subheader>
         <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input()">
@@ -632,6 +638,7 @@
                             @error="e => $emit('error', e)"
                             @change="e => $emit('change', e)"
                             @input="e => $emit('input', e)"
+                            @typechange="e => $emit('typechange', e)"
                   />
                 </v-card-text>
               </v-card>
@@ -643,7 +650,7 @@
 
 
     <p v-else-if="options.debug">
-      Unsupported type "{{ fullSchema.type }}" - {{ fullSchema }}
+      Unsupported type "{{ fullSchema.show_as }}" - {{ fullSchema }}
     </p>
   </div>
 </template>
@@ -712,17 +719,6 @@ export default {
     
   },
   computed: {
-    formattedDatetime(){
-      // var d = new Date(0);
-      // d.setUTCSeconds(
-      //   Number(this.datetime) === 1
-      //     ? new Date().getTime() / 1000
-      //     : new Date(this.datetime).getTime()
-      // );
-      // this.datetime = d;
-      // console.log("Date Time Format" + this.datetime);
-      // return this.datetime ? moment(this.datetime).format(this.format) : "";
-    },
     fullSchema() {
       return schemaUtils.prepareFullSchema(this.schema, this.modelWrapper, this.modelKey)
     },
@@ -840,9 +836,11 @@ export default {
         this.selectItems = selectItems
       }
     },
+    reset(typename){
+      this.$emit('typechange', { name: typename, remove_entry: true});
+    },
     typechange(payload){
-      console.log('type change items '+payload.name, payload.type, payload.show_as);
-      this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as});
+      this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as, remove_entry: false});
     },
     change() {
       this.updateSelectItems()
@@ -918,7 +916,7 @@ export default {
     cleanUpExtraProperties() {
       // console.log('Cleanup extra properties')
       // cleanup extra properties
-      if (this.fullSchema.type === 'object' && this.fullSchema.properties && Object.keys(this.fullSchema.properties).length && this.modelWrapper[this.modelKey]) {
+      if (this.fullSchema.show_as === 'object' && this.fullSchema.properties && Object.keys(this.fullSchema.properties).length && this.modelWrapper[this.modelKey]) {
         Object.keys(this.modelWrapper[this.modelKey]).forEach(key => {
           if (!this.fullSchema.properties.find(p => p.key === key)) {
             // console.log(`Remove key ${this.modelKey}.${key}`)
@@ -951,17 +949,17 @@ export default {
       if (this.fullSchema.const !== undefined) model = this.fullSchema.const
 
       // color pickers do not like null values
-      if (this.fullSchema.type === 'string' && this.fullSchema.format === 'hexcolor') model = model || ''
+      if (this.fullSchema.show_as === 'string' && this.fullSchema.format === 'hexcolor') model = model || ''
 
       // Case of a select based on ajax query
       if (this.fromUrl) this.fetchSelectItems()
       // Case of select based on an enum
-      if ((this.fullSchema.type === 'array' && this.fullSchema.items.enum) || this.fullSchema.enum) {
-        this.rawSelectItems = this.fullSchema.type === 'array' ? this.fullSchema.items.enum : this.fullSchema.enum
+      if ((this.fullSchema.show_as === 'array' && this.fullSchema.items.enum) || this.fullSchema.enum) {
+        this.rawSelectItems = this.fullSchema.show_as === 'array' ? this.fullSchema.items.enum : this.fullSchema.enum
       }
       // Case of select based on a oneof on simple types
       if (this.oneOfSelect) {
-        this.rawSelectItems = (this.fullSchema.type === 'array' ? this.fullSchema.items : this.fullSchema).oneOf.map(item => ({ ...item, [this.itemKey]: item.const || (item.enum && item.enum[0]), [this.itemTitle]: item.title }))
+        this.rawSelectItems = (this.fullSchema.show_as === 'array' ? this.fullSchema.items : this.fullSchema).oneOf.map(item => ({ ...item, [this.itemKey]: item.const || (item.enum && item.enum[0]), [this.itemTitle]: item.title }))
       }
       // Case of an auto-complete field already defined
       if (this.fromUrlWithQuery && model && model[this.itemTitle] !== undefined) {
@@ -991,7 +989,7 @@ export default {
       }
 
       // Init subModels for allOf subschemas
-      if (this.fullSchema.type === 'object' && this.fullSchema.allOf) {
+      if (this.fullSchema.show_as === 'object' && this.fullSchema.allOf) {
         this.fullSchema.allOf.forEach((allOf, i) => {
           this.$set(this.subModels, 'allOf-' + i, JSON.parse(JSON.stringify(model)))
         })
@@ -999,7 +997,7 @@ export default {
 
       // Case of a sub type selection based on a oneOf
       this.currentOneOf = null
-      if (this.fullSchema.type === 'object' && this.fullSchema.oneOf && !this.currentOneOf && this.oneOfConstProp) {
+      if (this.fullSchema.show_as === 'object' && this.fullSchema.oneOf && !this.currentOneOf && this.oneOfConstProp) {
         if (model && model[this.oneOfConstProp.key]) {
           this.currentOneOf = this.fullSchema.oneOf.find(item => item.properties[this.oneOfConstProp.key].const === model[this.oneOfConstProp.key])
         } else if (this.fullSchema.default) {
@@ -1015,7 +1013,7 @@ export default {
       }
 
       // Cleanup arrays of empty items
-      if (this.fullSchema.type === 'array') {
+      if (this.fullSchema.show_as === 'array') {
         model = model.filter(item => ![undefined, null].includes(item))
       }
 
