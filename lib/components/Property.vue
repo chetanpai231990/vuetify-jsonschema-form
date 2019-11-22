@@ -331,7 +331,7 @@
           <v-card-actions style="background-color: whitesmoke">
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" flat >Cancel</v-btn>
-            <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn>
+            <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
             <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
           </v-card-actions> 
         </v-menu>
@@ -365,7 +365,23 @@
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
 
-    <!-- Octet String fields -->
+    <!-- Octet String fields as Normal Strings-->
+    <v-text-field v-else-if="fullSchema.show_as === 'ascii'"
+                  v-model="modelWrapper[modelKey]"
+                  :name="fullKey"
+                  :label="label"
+                  :min="fullSchema.minimum"
+                  :max="fullSchema.maximum"
+                  :disabled="disabled"
+                  :required="required"
+                  :rules="rules"
+                  @input="input"
+                  @change="change"
+    >
+      <tooltip slot="append-outer" :html-description="htmlDescription" />
+    </v-text-field>
+
+    <!-- Octet String fields as Type :: HEX -->
     <v-text-field v-else-if="fullSchema.show_as === 'octet string'"
                   :value="modelWrapper[modelKey] | convertHextoAscii"
                   :name="fullKey"
@@ -379,6 +395,40 @@
                   @input="octetStringChanged($event)"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
+      <template v-slot:append-outer>
+        <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+          <template v-slot:activator="{ on }">
+            <span v-on="on">
+              <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+            </span>
+          </template>
+          <v-card-text @click.stop="" style="background-color: whitesmoke" >
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs20 sm6 md4>
+                  <v-text-field label="Name" :value="label" readonly></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-select
+                    v-model="selectedShowAsItem"
+                    :items="showAsItems"
+                    label="Show As"
+                  ></v-select>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions style="background-color: whitesmoke">
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat >Cancel</v-btn>
+            <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+            <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
+          </v-card-actions> 
+        </v-menu>
+      </template>
     </v-text-field>
 
     <!-- Simple boolean field -->
@@ -691,7 +741,7 @@ export default {
         border-color: none !important;
         `,
       selectedShowAsItem:'',
-      showAsItems:["timestamp","coordinates","ip"]
+      showAsItems:["timestamp","coordinates","ip", "ascii"]
     }
   },
   filters:{
@@ -1055,4 +1105,6 @@ export default {
 
 
 </style>
+
+
 
