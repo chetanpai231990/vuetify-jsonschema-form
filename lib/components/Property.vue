@@ -269,6 +269,21 @@
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
 
+    <!-- Handle Null Type :  -->
+    <v-text-field v-else-if="fullSchema.show_as === 'null'"
+                  value="null"
+                  :name="fullKey"
+                  :label="label"
+                  :disabled="disabled"
+                  :required="required"
+                  :rules="rules"
+                  :readonly="true"
+                  @change="change"
+                  @input="input"
+    >
+      <tooltip slot="append-outer" :html-description="htmlDescription" />
+    </v-text-field>
+
     <!-- Simple text field -->
     <v-text-field v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string'"
                   v-model="modelWrapper[modelKey]"
@@ -283,6 +298,8 @@
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
+
+
 
     <!-- Simple number fields -->
     <v-text-field v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'"
@@ -302,6 +319,9 @@
                   @focus="dialog=false"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
+      <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
+        <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+      </template>
       <template v-slot:append-outer>
         <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
           <template v-slot:activator="{ on }">
@@ -395,6 +415,9 @@
                   @input="octetStringChanged($event)"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
+      <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
+        <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+      </template>
       <template v-slot:append-outer>
         <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
           <template v-slot:activator="{ on }">
@@ -472,10 +495,13 @@
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.show_as === 'object'">
       <v-subheader v-if="modelKey!='root'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
-        
-        {{ fullSchema.title !=null ? label:modelKey }}
-        
-        &nbsp;
+        <v-input>
+          <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
+            <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+          </template>
+          {{ fullSchema.title !=null ? label:modelKey }}
+        </v-input>
+
         <v-icon v-if="foldable && folded">
           arrow_drop_down
         </v-icon>
@@ -741,7 +767,9 @@ export default {
         border-color: none !important;
         `,
       selectedShowAsItem:'',
-      showAsItems:["timestamp","coordinates","ip", "ascii"]
+      showAsItems:["timestamp","coordinates","ip", "ascii"],
+      optionalSwitch: true,
+      tempObject:{}
     }
   },
   filters:{
@@ -891,6 +919,16 @@ export default {
     },
     typechange(payload){
       this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as, remove_entry: false});
+    },
+    switchChanged(){
+
+      if(this.optionalSwitch === true){
+        this.modelWrapper[this.modelKey]= this.tempObject[this.modelKey]
+      }
+      else{
+        this.tempObject[this.modelKey]= this.modelWrapper[this.modelKey];
+        delete this.modelWrapper[this.modelKey];
+      }
     },
     change() {
       this.updateSelectItems()
@@ -1105,6 +1143,10 @@ export default {
 
 
 </style>
+
+
+
+
 
 
 
