@@ -285,7 +285,7 @@
     </v-text-field>
 
     <!-- Simple text field -->
-    <v-text-field v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string'"
+    <v-text-field v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -493,7 +493,7 @@
     </v-combobox>
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
-    <div v-else-if="fullSchema.show_as === 'object'">
+    <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
       <v-subheader v-if="modelKey!='root'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         <v-input>
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
@@ -607,11 +607,11 @@
           </template>
 
           <!-- Sub container with a select for oneOfs -->
-          <template v-if="fullSchema.oneOf">
+          <template v-if="fullSchema.show_as === 'choice'">
             <v-select
 
               v-model="currentOneOf"
-              :items="fullSchema.oneOf"
+              :items="fullSchema.choice"
               :disabled="disabled"
               :item-value="item => {return oneOfConstProp ? item.properties[oneOfConstProp.key].const : item.title}"
               :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : 'Type'"
@@ -620,7 +620,7 @@
               :rules="oneOfRules"
               item-text="title"
               return-object
-              @change="change"
+              @change="selectionChanged"
               @input="input"
             >
               <tooltip slot="append-outer" :html-description="oneOfConstProp && oneOfConstProp.htmlDescription" />
@@ -633,7 +633,6 @@
                 :model-root="modelRoot"
                 :parent-key="parentKey"
                 :options="options"
-                model-key="currentOneOf"
                 @error="e => $emit('error', e)"
                 @change="e => $emit('change', e)"
                 @input="e => $emit('input', e)"
@@ -732,6 +731,7 @@
 </template>
 
 <script>
+import { type } from 'os'
 import SelectIcon from './SelectIcon.vue'
 import SelectItem from './SelectItem.vue'
 import Tooltip from './Tooltip.vue'
@@ -934,6 +934,9 @@ export default {
       this.updateSelectItems()
       this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] })
     },
+    selectionChanged(){
+      this.modelWrapper[this.modelKey] ={};
+    },
     convertAsciitoHex(val) {
       //for Octect string
       if(val!=null){
@@ -1004,7 +1007,7 @@ export default {
     cleanUpExtraProperties() {
       // console.log('Cleanup extra properties')
       // cleanup extra properties
-      if (this.fullSchema.show_as === 'object' && this.fullSchema.properties && Object.keys(this.fullSchema.properties).length && this.modelWrapper[this.modelKey]) {
+      if (this.fullSchema.type === 'object' && this.fullSchema.properties && Object.keys(this.fullSchema.properties).length && this.modelWrapper[this.modelKey]) {
         Object.keys(this.modelWrapper[this.modelKey]).forEach(key => {
           if (!this.fullSchema.properties.find(p => p.key === key)) {
             // console.log(`Remove key ${this.modelKey}.${key}`)
@@ -1143,6 +1146,14 @@ export default {
 
 
 </style>
+
+
+
+
+
+
+
+
 
 
 
