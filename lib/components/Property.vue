@@ -1057,14 +1057,8 @@ export default {
               this.$set(this.modelWrapper, this.modelKey, model);
             }
             else{
-                if(this.fullSchema.type != 'object'){
-                  this.optionalSwitch =false;
-                  delete this.modelWrapper[this.modelKey];
-                }
-                else{
-                  this.optionalSwitch =false;
-                  delete this.modelWrapper[this.modelKey];
-                }
+              this.optionalSwitch =false;
+              delete this.modelWrapper[this.modelKey];
             }
           return;
         }
