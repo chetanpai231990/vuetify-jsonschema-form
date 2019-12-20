@@ -315,7 +315,7 @@
                   :readonly="readonly"
                   type="number"
                   @change="change"
-                  @input="input"
+                  @input="optionalSwitch =true; input"
                   @focus="dialog=false"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
@@ -516,6 +516,7 @@
             {{ fullSchema.description }}
           </p>
           <property v-for="childProp in fullSchema.properties" :key="childProp.key"
+                    v-show="optionalSwitch"
                     :schema="childProp"
                     :model-wrapper="modelWrapper[modelKey]"
                     :model-root="modelRoot"
@@ -622,6 +623,7 @@
               return-object
               @change="selectionChanged"
               @input="input"
+              :readonly="readonly"
             >
               <tooltip slot="append-outer" :html-description="oneOfConstProp && oneOfConstProp.htmlDescription" />
             </v-select>
@@ -678,10 +680,10 @@
     </div>
 
     <!-- Dynamic size array of complex types sub container -->
-    <div v-else-if="fullSchema.show_as === 'array'">
+    <div v-else-if="fullSchema.show_as === 'array'" :key="compKey">
       <v-layout row class="mt-2 mb-1 pr-1">
         <v-subheader>{{ label }}</v-subheader>
-        <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input()">
+        <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
           <v-icon>add</v-icon>
         </v-btn>
         <v-spacer />
@@ -745,7 +747,7 @@ const md = require('markdown-it')()
 export default {
   name: 'Property',
   components: { SelectIcon, SelectItem, Tooltip, VueIp, 'v-datetime-picker':DateTimeComponent },
-  props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options'],
+  props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options', 'firsttime'],
   data() {
     return {
       ready: false,
@@ -769,7 +771,8 @@ export default {
       selectedShowAsItem:'',
       showAsItems:["timestamp","coordinates","ip", "ascii"],
       optionalSwitch: true,
-      tempObject:{}
+      tempObject:{},
+      compKey: 0
     }
   },
   filters:{
@@ -923,9 +926,17 @@ export default {
     switchChanged(){
 
       if(this.optionalSwitch === true){
-        this.modelWrapper[this.modelKey]= this.tempObject[this.modelKey]
+        
+        if(this.fullSchema.type === 'object'){
+          this.modelWrapper[this.modelKey] = JSON.parse(localStorage[this.modelKey]);
+        }
+        else{
+          this.modelWrapper[this.modelKey]= this.tempObject[this.modelKey];
+        }
+        
       }
       else{
+        localStorage[this.modelKey] = JSON.stringify(this.modelWrapper[this.modelKey]);
         this.tempObject[this.modelKey]= this.modelWrapper[this.modelKey];
         delete this.modelWrapper[this.modelKey];
       }
@@ -1032,9 +1043,32 @@ export default {
       let model = this.modelWrapper[this.modelKey]
 
       // Manage default values
-      if (model === undefined) {
+      if (model === undefined) 
+      {
+        
         model = this.defaultValue(this.fullSchema)
-        if (this.fullSchema.default !== undefined) model = JSON.parse(JSON.stringify(this.fullSchema.default))
+        if (this.fullSchema.default !== undefined)
+        {
+          model = JSON.parse(JSON.stringify(this.fullSchema.default))
+        }
+        if(this.fullSchema.optional && this.optionalSwitch){
+            console.log('Firsttime value '+localStorage.firsttime);
+            if(localStorage.firsttime.toString() === 'true'){
+              this.$set(this.modelWrapper, this.modelKey, model);
+            }
+            else{
+                if(this.fullSchema.type != 'object'){
+                  this.optionalSwitch =false;
+                  delete this.modelWrapper[this.modelKey];
+                }
+                else{
+                  this.optionalSwitch =false;
+                  delete this.modelWrapper[this.modelKey];
+                }
+            }
+          return;
+        }
+        
       }
       // const always wins
       if (this.fullSchema.const !== undefined) model = this.fullSchema.const
