@@ -5,6 +5,7 @@
     :model-root="modelWrapper.root"
     :model-wrapper="modelWrapper"
     :options="fullOptions"
+    :firsttime="initialLoad"
     model-key="root"
     parent-key=""
     @error="e => $emit('error', e)"
@@ -26,6 +27,9 @@ export default {
     return { modelWrapper: { root: this.model } }
   },
   computed: {
+    initialLoad(){
+      return Object.keys(this.modelWrapper.root).length  === 0 ? localStorage.firsttime= true : localStorage.firsttime= false;
+    },
     resolvedSchema() {
       return jrefs.resolve(this.schema)
     },
