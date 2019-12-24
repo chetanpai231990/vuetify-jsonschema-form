@@ -112,6 +112,7 @@
       {{ modelWrapper[modelKey] }} -->
       <v-select
         v-model="modelWrapper[modelKey]"
+        style="width:90%"
         :items="selectItems"
         :name="fullKey"
         :label="label"
@@ -271,6 +272,7 @@
 
     <!-- Handle Null Type :  -->
     <v-text-field v-else-if="fullSchema.show_as === 'null'"
+                  style="width:90%"
                   value="null"
                   :name="fullKey"
                   :label="label"
@@ -286,6 +288,7 @@
 
     <!-- Simple text field -->
     <v-text-field v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
+                  style="width:90%"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -303,6 +306,7 @@
 
     <!-- Simple number fields -->
     <v-text-field v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'"
+                  style="width:90%"
                   v-model.number="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -371,6 +375,7 @@
 
     <!-- Coordinates fields -->
     <v-text-field v-else-if="fullSchema.show_as === 'coordinates'"
+                  style="width:90%"
                   :value="modelWrapper[modelKey] | convertCoordinates"
                   :name="fullKey"
                   :label="label"
@@ -387,6 +392,7 @@
 
     <!-- Octet String fields as Normal Strings-->
     <v-text-field v-else-if="fullSchema.show_as === 'ascii'"
+                  style="width:90%"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -403,6 +409,7 @@
 
     <!-- Octet String fields as Type :: HEX -->
     <v-text-field v-else-if="fullSchema.show_as === 'octet string'"
+                  style="width:90%"
                   :value="modelWrapper[modelKey] | convertHextoAscii"
                   :name="fullKey"
                   :label="label"
@@ -472,6 +479,7 @@
     <!-- Simple strings array -->
     <v-combobox
       v-else-if="fullSchema.show_as === 'array' && fullSchema.items.show_as === 'string'"
+      style="width:90%"
       v-model="modelWrapper[modelKey]"
       :name="fullKey"
       :label="label"
@@ -494,7 +502,7 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-      <v-subheader v-if="modelKey!='root'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader v-show="modelKey!='root' && fullSchema.title != '' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         <v-input>
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -648,7 +656,7 @@
 
     <!-- Tuples array sub container -->
     <div v-else-if="fullSchema.show_as === 'array' && Array.isArray(fullSchema.items)">
-      <v-subheader :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader :style="foldable ? 'cursor:pointer;' :'' " style="font-weight:1000" class="mt-2" @click="folded = !folded">
         {{ fullSchema.title !=null ? label:modelKey }}
         &nbsp;
         <v-icon v-if="foldable && folded">
@@ -683,8 +691,8 @@
     <div v-else-if="fullSchema.show_as === 'array'" :key="compKey">
       <v-layout row class="mt-2 mb-1 pr-1">
         <v-subheader>{{ label }}</v-subheader>
-        <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
-          <v-icon>add</v-icon>
+        <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
+          <v-icon small>add</v-icon>
         </v-btn>
         <v-spacer />
         <tooltip :html-description="htmlDescription" />
@@ -695,17 +703,18 @@
           <draggable v-model="modelWrapper[modelKey]" handle=".handle" style="width: 100%;">
             <v-flex v-for="(itemModel, i) in modelWrapper[modelKey]" :key="i" xs12>
               <v-card class="array-card">
-                <v-card-title primary-title class="pa-0">
+                <!-- <v-card-title  class="pa-0 ma-0">
                   <v-btn :disabled="readonly" v-if="!disabled && fullSchema['x-sortable'] !== false" icon class="handle">
                     <v-icon>reorder</v-icon>
                   </v-btn>
                   <span v-if="itemTitle && modelWrapper[modelKey][i]">{{ modelWrapper[modelKey][i][itemTitle] }}</span>
                   <v-spacer />
-                  <v-btn :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="warning" @click="modelWrapper[modelKey].splice(i, 1); change(); input()">
-                    <v-icon>delete</v-icon>
-                  </v-btn>
-                </v-card-title>
+                  
+                </v-card-title> -->
                 <v-card-text>
+                  <v-btn style="position: relative; float: right; color: white; top: -10px; right: -25px;" small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon @click="modelWrapper[modelKey].splice(i, 1); change(); input()">
+                    <v-icon small color="black">delete</v-icon>
+                  </v-btn>
                   <property :schema="fullSchema.items"
                             :model-wrapper="modelWrapper[modelKey]"
                             :model-root="modelRoot"
@@ -1174,6 +1183,22 @@ export default {
 
 
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
