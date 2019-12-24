@@ -8,6 +8,7 @@
   >
     <v-text-field
       slot="activator"
+      style="width:85%"
       :label="label"
       :value="formattedDatetime"
       :disabled="disabled"
