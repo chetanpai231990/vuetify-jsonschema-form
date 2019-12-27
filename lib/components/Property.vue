@@ -108,35 +108,39 @@
 
     <!-- Select field based on an enum (array or simple value) -->
     <template v-else-if="(fullSchema.show_as === 'array' && fullSchema.items.enum) || fullSchema.enum">
-      <!-- {{ selectItems }}<br>
-      {{ modelWrapper[modelKey] }} -->
-      <v-select
-        v-model="modelWrapper[modelKey]"
-        style="width:90%"
-        :items="selectItems"
-        :name="fullKey"
-        :label="label"
-        :required="required"
-        :rules="rules"
-        :disabled="disabled"
-        :readonly="readonly"
-        :clearable="!required"
-        :multiple="fullSchema.show_as === 'array'"
-        @change="change"
-        @input="input"
-      >
-        <template slot="selection" slot-scope="data">
-          <div class="v-select__selection v-select__selection--comma">
+      <div class="d-inline-flex pa-2">
+        <v-switch v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
+        <v-select
+          v-model="modelWrapper[modelKey]"
+          style="width:90%"
+          :items="selectItems"
+          :name="fullKey"
+          :label="label"
+          :required="required"
+          :rules="rules"
+          :disabled="disabled"
+          :readonly="readonly"
+          :clearable="!required"
+          :multiple="fullSchema.show_as === 'array'"
+          @change="change"
+          @input="input"
+        >
+          <!-- <template slot="prepend" v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" >
+            <v-switch v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
+          </template> -->
+          <template slot="selection" slot-scope="data">
+            <div class="v-select__selection v-select__selection--comma">
+              <select-icon v-if="itemIcon" :value="data.item" />
+              <span v-if="![null, undefined].includes(data.item)">{{ data.item + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
+            </div>
+          </template>
+          <template slot="item" slot-scope="data">
             <select-icon v-if="itemIcon" :value="data.item" />
-            <span v-if="![null, undefined].includes(data.item)">{{ data.item + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
-          </div>
-        </template>
-        <template slot="item" slot-scope="data">
-          <select-icon v-if="itemIcon" :value="data.item" />
-          <select-item :title="data.item" :options="options" />
-        </template>
-        <tooltip slot="append-outer" :html-description="htmlDescription" />
-      </v-select>
+            <select-item :title="data.item" :options="options" />
+          </template>
+          <tooltip slot="append-outer" :html-description="htmlDescription" />
+        </v-select>
+      </div>
     </template>
 
     <!-- Select field based on a oneOf on a simple type (array or simple value) -->
