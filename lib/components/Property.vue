@@ -1073,6 +1073,10 @@ export default {
               this.optionalSwitch =false;
               delete this.modelWrapper[this.modelKey];
             }
+            // Case of select based on an enum
+          if ((this.fullSchema.show_as === 'array' && this.fullSchema.items.enum) || this.fullSchema.enum) {
+            this.rawSelectItems = this.fullSchema.show_as === 'array' ? this.fullSchema.items.enum : this.fullSchema.enum
+          }
           return;
         }
         
