@@ -291,8 +291,10 @@
     </v-text-field>
 
     <!-- Simple text field -->
-    <v-text-field v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
+    <v-textarea v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
                   style="width:90%"
+                  rows="1"
+                  auto-grow="true"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -304,7 +306,7 @@
                   @input="input"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-text-field>
+    </v-textarea>
 
 
 
@@ -412,7 +414,9 @@
     </v-text-field>
 
     <!-- Octet String fields as Type :: HEX -->
-    <v-text-field v-else-if="fullSchema.show_as === 'octet string'"
+    <v-textarea v-else-if="fullSchema.show_as === 'octet string'"
+                  rows="1"
+                  auto-grow="true"
                   style="width:90%"
                   :value="modelWrapper[modelKey] | convertHextoAscii"
                   :name="fullKey"
@@ -463,7 +467,7 @@
           </v-card-actions> 
         </v-menu>
       </template>
-    </v-text-field>
+    </v-textarea>
 
     <!-- Simple boolean field -->
     <v-checkbox v-else-if="fullSchema.show_as === 'boolean'"
@@ -1191,34 +1195,6 @@ export default {
 
 
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
