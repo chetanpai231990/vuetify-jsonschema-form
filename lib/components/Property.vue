@@ -120,7 +120,7 @@
           :rules="rules"
           :disabled="disabled"
           :readonly="readonly"
-          :clearable="!required"
+          :clearable="!readonly"
           :multiple="fullSchema.show_as === 'array'"
           @change="change"
           @input="input"
@@ -633,7 +633,7 @@
               :item-value="item => {return oneOfConstProp ? item.properties[oneOfConstProp.key].const : item.title}"
               :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : 'Type'"
               :required="oneOfRequired"
-              :clearable="!oneOfRequired"
+              :clearable="!readonly"
               :rules="oneOfRules"
               item-text="title"
               return-object
