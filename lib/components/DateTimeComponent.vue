@@ -115,7 +115,7 @@ export default {
     },
     clearText: {
       type: String,
-      default: "CLEAR"
+      default: "CANCEL"
     },
     okText: {
       type: String,
@@ -256,7 +256,7 @@ export default {
       this.activeTab = 0;
       this.$refs.timer.selectingHour = true;
 
-      this.$emit("input", null);
+      //this.$emit("input", null);
     }
   }
 };
