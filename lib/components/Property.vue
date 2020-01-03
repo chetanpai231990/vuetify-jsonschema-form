@@ -311,62 +311,69 @@
 
 
     <!-- Simple number fields -->
-    <v-text-field v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'"
-                  style="width:90%"
-                  v-model.number="modelWrapper[modelKey]"
-                  :name="fullKey"
-                  :label="label"
-                  :min="fullSchema.minimum"
-                  :max="fullSchema.maximum"
-                  :step="fullSchema.show_as === 'integer' ? 1 : 0.01"
-                  :disabled="disabled"
-                  :required="required"
-                  :rules="rules"
-                  :readonly="readonly"
-                  type="number"
-                  @change="change"
-                  @input="optionalSwitch =true; input"
-                  @focus="dialog=false"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-      <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
-        <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
-      </template>
-      <template v-slot:append-outer>
-        <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
-          <template v-slot:activator="{ on }">
-            <span v-on="on">
-              <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
-            </span>
-          </template>
-          <v-card-text @click.stop="" style="background-color: whitesmoke" >
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex xs20 sm6 md4>
-                  <v-text-field label="Name" :value="label" readonly></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-select
-                    v-model="selectedShowAsItem"
-                    :items="showAsItems"
-                    label="Show As"
-                  ></v-select>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-text>
-          <v-card-actions style="background-color: whitesmoke">
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat >Cancel</v-btn>
-            <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
-            <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
-          </v-card-actions> 
-        </v-menu>
-      </template>
-    </v-text-field>
+    <div v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'">
+      <v-subheader v-if="readonly" 
+              style="height:25px !important;color:white"> 
+              {{ label }} : {{ modelWrapper[modelKey] }}
+      </v-subheader>
+      <v-text-field v-else
+              style="width:90%"
+              v-model.number="modelWrapper[modelKey]"
+              :name="fullKey"
+              :label="label"
+              :min="fullSchema.minimum"
+              :max="fullSchema.maximum"
+              :step="fullSchema.show_as === 'integer' ? 1 : 0.01"
+              :disabled="disabled"
+              :required="required"
+              :rules="rules"
+              :readonly="readonly"
+              type="number"
+              @change="change"
+              @input="optionalSwitch =true; input"
+              @focus="dialog=false"
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+        <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
+          <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+        </template>
+        <template v-slot:append-outer>
+          <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+              </span>
+            </template>
+            <v-card-text @click.stop="" style="background-color: whitesmoke" >
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs20 sm6 md4>
+                    <v-text-field label="Name" :value="label" readonly></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md4>
+                    <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md4>
+                    <v-select
+                      v-model="selectedShowAsItem"
+                      :items="showAsItems"
+                      label="Show As"
+                    ></v-select>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+            <v-card-actions style="background-color: whitesmoke">
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat >Cancel</v-btn>
+              <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
+            </v-card-actions> 
+          </v-menu>
+        </template>
+      </v-text-field>
+    </div>
+    
 
   <!-- IP Address fields -->
     <vue-ip v-else-if="fullSchema.show_as === 'ip'"
@@ -414,60 +421,66 @@
     </v-text-field>
 
     <!-- Octet String fields as Type :: HEX -->
-    <v-textarea v-else-if="fullSchema.show_as === 'octet string'"
-                  rows="1"
-                  auto-grow="true"
-                  style="width:90%"
-                  :value="modelWrapper[modelKey] | convertHextoAscii"
-                  :name="fullKey"
-                  :label="label"
-                  :min="fullSchema.minimum"
-                  :max="fullSchema.maximum"
-                  :disabled="disabled"
-                  :readonly="readonly"
-                  :required="required"
-                  :rules="rules"
-                  @input="octetStringChanged($event)"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-      <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
-        <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
-      </template>
-      <template v-slot:append-outer>
-        <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
-          <template v-slot:activator="{ on }">
-            <span v-on="on">
-              <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
-            </span>
-          </template>
-          <v-card-text @click.stop="" style="background-color: whitesmoke" >
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex xs20 sm6 md4>
-                  <v-text-field label="Name" :value="label" readonly></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-select
-                    v-model="selectedShowAsItem"
-                    :items="showAsItems"
-                    label="Show As"
-                  ></v-select>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-text>
-          <v-card-actions style="background-color: whitesmoke">
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat >Cancel</v-btn>
-            <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
-            <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
-          </v-card-actions> 
-        </v-menu>
-      </template>
-    </v-textarea>
+    <div v-else-if="fullSchema.show_as === 'octet string'">
+      <v-subheader v-if="readonly" 
+                style="height:25px !important;color:white"> 
+                {{ label }} : {{ modelWrapper[modelKey] | convertHextoAscii}}
+      </v-subheader>
+      <v-textarea v-else
+                    rows="1"
+                    auto-grow="true"
+                    style="width:90%"
+                    :value="modelWrapper[modelKey] | convertHextoAscii"
+                    :name="fullKey"
+                    :label="label"
+                    :min="fullSchema.minimum"
+                    :max="fullSchema.maximum"
+                    :disabled="disabled"
+                    :readonly="readonly"
+                    :required="required"
+                    :rules="rules"
+                    @input="octetStringChanged($event)"
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+        <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
+          <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+        </template>
+        <template v-slot:append-outer>
+          <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+              </span>
+            </template>
+            <v-card-text @click.stop="" style="background-color: whitesmoke" >
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs20 sm6 md4>
+                    <v-text-field label="Name" :value="label" readonly></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md4>
+                    <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md4>
+                    <v-select
+                      v-model="selectedShowAsItem"
+                      :items="showAsItems"
+                      label="Show As"
+                    ></v-select>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+            <v-card-actions style="background-color: whitesmoke">
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat >Cancel</v-btn>
+              <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
+            </v-card-actions> 
+          </v-menu>
+        </template>
+      </v-textarea>
+    </div>
 
     <!-- Simple boolean field -->
     <v-checkbox v-else-if="fullSchema.show_as === 'boolean'"
@@ -510,7 +523,7 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-      <v-subheader v-show="modelKey!='root' && fullSchema.title != '' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader v-show="modelKey!='root' && fullSchema.title != '' && parentKey !='root.' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         <v-input>
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -1195,6 +1208,10 @@ export default {
 
 
 </style>
+
+
+
+
 
 
 
