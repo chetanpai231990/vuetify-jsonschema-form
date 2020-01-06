@@ -639,7 +639,8 @@
           <!-- Sub container with a select for oneOfs -->
           <template v-if="fullSchema.show_as === 'choice'">
             <v-select
-
+              style="width:90%"
+              prepend-icon="view_list"
               v-model="currentOneOf"
               :items="fullSchema.choice"
               :disabled="disabled"
