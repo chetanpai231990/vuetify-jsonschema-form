@@ -99,16 +99,16 @@ export default {
         this.moveToNextIpSegment(index, false);
       } else if (this.ipCopy[index] < "0") {
         this.ipCopy[index] = "0";
-        this.moveToNextIpSegment(index);
+        this.moveToNextIpSegment(index, false);
       }else if (
         this.ipCopy[index].length === 3 &&
         this.ipCopy[index] >= "255"
       ) {
         this.ipCopy[index] = "255";
-        this.moveToNextIpSegment(0);
+        this.moveToNextIpSegment(index);
       } else if (this.ipCopy[index].length > 3 && index === 3) {
         this.ipCopy[index] = "255";
-        this.moveToNextIpSegment(0);
+        this.moveToNextIpSegment(index);
       } else {
         this.moveToNextIpSegment(index);
       }
