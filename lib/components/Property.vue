@@ -120,7 +120,6 @@
           :rules="rules"
           :disabled="disabled"
           :readonly="readonly"
-          :clearable="!readonly"
           :multiple="fullSchema.show_as === 'array'"
           @change="change"
           @input="input"
@@ -523,7 +522,7 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-      <v-subheader v-show="modelKey!='root' && fullSchema.title != '' && parentKey !='root.' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader v-show="modelKey!='root' && modelKey !=null && fullSchema.title != '' && parentKey !='root.' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         <v-input>
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -647,7 +646,6 @@
               :item-value="item => {return oneOfConstProp ? item.properties[oneOfConstProp.key].const : item.title}"
               :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : 'Type'"
               :required="oneOfRequired"
-              :clearable="!readonly"
               :rules="oneOfRules"
               item-text="title"
               return-object
@@ -1209,6 +1207,8 @@ export default {
 
 
 </style>
+
+
 
 
 
