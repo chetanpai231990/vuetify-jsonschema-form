@@ -108,7 +108,7 @@
 
     <!-- Select field based on an enum (array or simple value) -->
     <template v-else-if="(fullSchema.show_as === 'array' && fullSchema.items.enum) || fullSchema.enum">
-      <div class="d-inline-flex pa-2">
+      <div class="d-inline-flex">
         <v-switch v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
         <v-select
           v-model="modelWrapper[modelKey]"
@@ -527,7 +527,7 @@
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
           </template>
-          {{ fullSchema.title !=null ? label:modelKey }}
+          <span style="color:black">{{ fullSchema.title !=null ? label:modelKey }}</span>  
         </v-input>
 
         <v-icon v-if="foldable && folded">
@@ -556,6 +556,7 @@
                     @change="e => $emit('change', e)"
                     @input="e => $emit('input', e)"
                     @typechange="e => $emit('typechange', e)"
+                    :style="parentKey ==='root.' ? '' : 'margin-left:15px'"
           />
 
           <!-- Sub containers for allOfs -->
@@ -1207,6 +1208,16 @@ export default {
 
 
 </style>
+
+
+
+
+
+
+
+
+
+
 
 
 
