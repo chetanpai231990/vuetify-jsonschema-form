@@ -527,7 +527,7 @@
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
           </template>
-          <span style="color:black">{{ fullSchema.title !=null ? label:modelKey }}</span>  
+          <span :style="!readonly ? 'color:black' : '' ">{{ fullSchema.title !=null ? label:modelKey }}</span>  
         </v-input>
 
         <v-icon v-if="foldable && folded">
@@ -556,7 +556,7 @@
                     @change="e => $emit('change', e)"
                     @input="e => $emit('input', e)"
                     @typechange="e => $emit('typechange', e)"
-                    :style="parentKey ==='root.' ? '' : 'margin-left:15px'"
+                    :style="parentKey ==='root.' ? '' : readonly ? '' : 'margin-left:15px'"
           />
 
           <!-- Sub containers for allOfs -->
@@ -1069,7 +1069,6 @@ export default {
       })
     },
     initFromSchema() {
-      // console.log('Init from schema')
       let model = this.modelWrapper[this.modelKey]
 
       // Manage default values
@@ -1157,7 +1156,15 @@ export default {
           this.currentOneOf = this.fullSchema.oneOf.find(item => item.properties[this.oneOfConstProp.key].const === this.fullSchema.default[this.oneOfConstProp.key])
         }
       }
-
+      if(this.fullSchema.choice){
+        if(Object.keys(model)[0] != undefined){
+          this.currentOneOf = JSON.parse(JSON.stringify(this.fullSchema.choice.find(item => item.title === Object.keys(model)[0])));
+        }
+        else{
+          this.currentOneOf = JSON.parse(JSON.stringify(this.fullSchema.choice))[0];
+        }
+      }
+      
       // Init subModel for current oneOf
       if (this.currentOneOf) {
         this.$set(this.subModels, 'currentOneOf', JSON.parse(JSON.stringify(model)))
@@ -1208,6 +1215,16 @@ export default {
 
 
 </style>
+
+
+
+
+
+
+
+
+
+
 
 
 
