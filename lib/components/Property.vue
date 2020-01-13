@@ -293,7 +293,7 @@
     <v-textarea v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
                   style="width:90%"
                   rows="1"
-                  auto-grow="true"
+                  auto-grow
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
@@ -427,7 +427,7 @@
       </v-subheader>
       <v-textarea v-else
                     rows="1"
-                    auto-grow="true"
+                    auto-grow
                     style="width:90%"
                     :value="modelWrapper[modelKey] | convertHextoAscii"
                     :name="fullKey"
@@ -522,7 +522,7 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-      <v-subheader v-show="modelKey!='root' && modelKey !=null && fullSchema.title != '' && parentKey !='root.' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader v-show="modelKey!='root' && modelKey !=null && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         <v-input>
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -539,7 +539,8 @@
       </v-subheader>
 
       <v-slide-y-transition>
-        <div v-show="!foldable || !folded">
+        <div v-show="!foldable || !folded" 
+            :style="fullSchema.optional === true ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
           <p v-if="fullSchema.description">
             {{ fullSchema.description }}
           </p>
@@ -556,7 +557,7 @@
                     @change="e => $emit('change', e)"
                     @input="e => $emit('input', e)"
                     @typechange="e => $emit('typechange', e)"
-                    :style="parentKey ==='root.' ? '' : readonly ? '' : 'margin-left:15px'"
+                    :style="parentKey ==='root.' || modelKey==='root' ? '' : readonly ? '' : 'margin-left:15px;'"
           />
 
           <!-- Sub containers for allOfs -->
@@ -660,9 +661,11 @@
             <template v-if="currentOneOf && showCurrentOneOf">
               <property
                 :schema="Object.assign({}, currentOneOf, {title: null, type: 'object'})"
+
                 :model-wrapper="subModels"
                 :model-root="modelRoot"
                 :parent-key="parentKey"
+                model-key="currentOneOf"
                 :options="options"
                 @error="e => $emit('error', e)"
                 @change="e => $emit('change', e)"
@@ -836,7 +839,7 @@ export default {
     htmlDescription() {
       return (this.fullSchema && this.fullSchema.description) ? md.render(this.fullSchema.description) : null
     },
-    fullKey() { return (this.parentKey + this.modelKey).replace('root.', '') },
+    fullKey() { return (this.parentKey + this.modelKey ).replace('root.', '') },
     label() { return this.fullSchema.title || (typeof this.modelKey === 'string' ? this.modelKey : '') },
     rules() {
       return schemaUtils.getRules(this.fullSchema, this.required, this.options)
@@ -1003,7 +1006,7 @@ export default {
     },
     octetStringChanged(event){
       //Handle here.
-      console.log('Changed Value'+event);
+      
       this.modelWrapper[this.modelKey]= this.convertAsciitoHex(event);
       this.$emit('change', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: this.modelWrapper[this.modelKey] });
     },
@@ -1058,19 +1061,26 @@ export default {
       }
     },
     applySubModels() {
-      // console.log('Apply sub models')
+      //delete this.subModels['undefined'];
+      var isSetOnce= false;
       Object.keys(this.subModels).forEach(subModel => {
-        Object.keys(this.subModels[subModel]).forEach(key => {
-          if (this.modelWrapper[this.modelKey][key] !== this.subModels[subModel][key]) {
-            // console.log(`Apply submodel ${this.modelKey}.${key}`, JSON.stringify(this.subModels[subModel][key]))
-            this.$set(this.modelWrapper[this.modelKey], key, this.subModels[subModel][key])
+        Object.keys(this.subModels[subModel]).forEach(key => {          
+          if (!isSetOnce && this.modelWrapper[this.modelKey][key] !== this.subModels[subModel][key]) {
+
+            if(this.modelWrapper[this.modelKey][key] === undefined){
+              this.$set(this.modelWrapper[this.modelKey], key, this.subModels[subModel][key])
+              isSetOnce=true;
+            }
+            else{
+              this.$set(this.modelWrapper[this.modelKey], key, this.subModels[subModel][key])
+              isSetOnce=true;
+            }
           }
         })
       })
     },
     initFromSchema() {
       let model = this.modelWrapper[this.modelKey]
-
       // Manage default values
       if (model === undefined) 
       {
@@ -1081,7 +1091,6 @@ export default {
           model = JSON.parse(JSON.stringify(this.fullSchema.default))
         }
         if(this.fullSchema.optional && this.optionalSwitch){
-            console.log('Firsttime value '+localStorage.firsttime);
             if(localStorage.firsttime.toString() === 'true'){
               this.$set(this.modelWrapper, this.modelKey, model);
             }
@@ -1165,7 +1174,7 @@ export default {
         }
       }
       
-      // Init subModel for current oneOf
+      //Init subModel for current oneOf
       if (this.currentOneOf) {
         this.$set(this.subModels, 'currentOneOf', JSON.parse(JSON.stringify(model)))
       } else {
@@ -1215,6 +1224,36 @@ export default {
 
 
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
