@@ -540,7 +540,7 @@
 
       <v-slide-y-transition>
         <div v-show="!foldable || !folded" 
-            :style="fullSchema.optional === true ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
+            :style="fullSchema.optional === true && !readonly ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
           <p v-if="fullSchema.description">
             {{ fullSchema.description }}
           </p>
