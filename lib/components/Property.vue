@@ -522,7 +522,7 @@
 
     <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
     <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-      <v-subheader v-show="modelKey!='root' && modelKey !=null && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.' " :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+      <v-subheader v-show="modelKey!='root' && modelKey !=null && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
         <v-input>
           <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -540,7 +540,7 @@
 
       <v-slide-y-transition>
         <div v-show="!foldable || !folded" 
-            :style="fullSchema.optional === true && !readonly ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
+            :style="parentKey !='root.' && modelKey !='root' && isArray === undefined && !readonly ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
           <p v-if="fullSchema.description">
             {{ fullSchema.description }}
           </p>
@@ -661,7 +661,6 @@
             <template v-if="currentOneOf && showCurrentOneOf">
               <property
                 :schema="Object.assign({}, currentOneOf, {title: null, type: 'object'})"
-
                 :model-wrapper="subModels"
                 :model-root="modelRoot"
                 :parent-key="parentKey"
@@ -749,6 +748,7 @@
                             @change="e => $emit('change', e)"
                             @input="e => $emit('input', e)"
                             @typechange="e => $emit('typechange', e)"
+                            :is-array="true"
                   />
                 </v-card-text>
               </v-card>
@@ -780,7 +780,7 @@ const md = require('markdown-it')()
 export default {
   name: 'Property',
   components: { SelectIcon, SelectItem, Tooltip, VueIp, 'v-datetime-picker':DateTimeComponent },
-  props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options', 'firsttime'],
+  props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options', 'firsttime', 'isArray'],
   data() {
     return {
       ready: false,
@@ -1224,62 +1224,3 @@ export default {
 
 
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
