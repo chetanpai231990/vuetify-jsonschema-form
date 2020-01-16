@@ -366,7 +366,7 @@
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" flat >Cancel</v-btn>
               <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
-              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
+              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:modelKey,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
             </v-card-actions> 
           </v-menu>
         </template>
@@ -463,7 +463,7 @@
                   <v-flex xs12 sm6 md4>
                     <v-select
                       v-model="selectedShowAsItem"
-                      :items="showAsItems"
+                      :items="showAsItemsforString"
                       label="Show As"
                     ></v-select>
                   </v-flex>
@@ -802,7 +802,8 @@ export default {
         border-color: none !important;
         `,
       selectedShowAsItem:'',
-      showAsItems:["timestamp","coordinates","ip", "ascii"],
+      showAsItems:["timestamp","coordinates","ip"],
+      showAsItemsforString: ["ascii"],
       optionalSwitch: true,
       tempObject:{},
       compKey: 0
@@ -1224,3 +1225,4 @@ export default {
 
 
 </style>
+
