@@ -173,20 +173,16 @@ export default {
     };
   },
   mounted() {
-    console.log("Created Custom Date Time" + this.datetime);
 
     if (this.datetime instanceof Date) {
-      console.log("Date Time Instance ");
       this.selectedDatetime = this.datetime;
     } else if (
       typeof this.datetime === "string" ||
       this.datetime instanceof String
     ) {
-      console.log("String Instance ");
       this.selectedDatetime = moment(this.datetime, this.format);
     }
 
-    console.log("selectedDatetime" + this.selectedDatetime);
     this.$emit("input", this.selectedDatetime);
   },
   computed: {
@@ -237,9 +233,6 @@ export default {
       }
     },
     formattedDatetime() {
-      console.log(
-        "Date Time Format" + new Date(this.datetime).getTime().toString().length
-      );
 
       var d = new Date(0);
       d.setUTCSeconds(
@@ -248,7 +241,6 @@ export default {
           : Math.floor(new Date(this.datetime).getTime())
       );
       this.datetime = d;
-      console.log("Date Time Format" + this.datetime);
       return this.datetime ? moment(this.datetime).format(this.format) : "";
     }
   },
@@ -269,3 +261,4 @@ export default {
   }
 };
 </script>
+
