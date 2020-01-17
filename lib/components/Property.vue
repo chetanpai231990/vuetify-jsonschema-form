@@ -403,7 +403,7 @@
     </v-text-field>
 
     <!-- Octet String fields as Normal Strings-->
-    <v-text-field v-else-if="fullSchema.show_as === 'ascii'"
+    <v-text-field v-else-if="fullSchema.show_as === 'hex'"
                   style="width:90%"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
@@ -427,7 +427,7 @@
       </v-subheader>
       <v-textarea v-else
                     rows="1"
-                    auto-grow
+                    
                     style="width:90%"
                     :value="modelWrapper[modelKey] | convertHextoAscii"
                     :name="fullKey"
@@ -803,7 +803,7 @@ export default {
         `,
       selectedShowAsItem:'',
       showAsItems:["timestamp","coordinates","ip"],
-      showAsItemsforString: ["ascii"],
+      showAsItemsforString: ["hex"],
       optionalSwitch: true,
       tempObject:{},
       compKey: 0
@@ -1225,5 +1225,8 @@ export default {
 
 
 </style>
+
+
+
 
 
