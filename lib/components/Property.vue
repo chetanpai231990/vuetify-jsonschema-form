@@ -1028,6 +1028,7 @@ export default {
     defaultValue(schema) {
       if (schema.type === 'object' && !schema['x-fromUrl'] && !schema['x-fromData']) return {}
       if (schema.type === 'array') return []
+      if (schema.type === 'integer') return schema.default;
       return null
     },
     fetchSelectItems() {
