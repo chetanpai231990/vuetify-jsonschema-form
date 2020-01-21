@@ -841,7 +841,7 @@ export default {
       return (this.fullSchema && this.fullSchema.description) ? md.render(this.fullSchema.description) : null
     },
     fullKey() { return (this.parentKey + this.modelKey ).replace('root.', '') },
-    label() { return this.fullSchema.title || (typeof this.modelKey === 'string' ? this.modelKey : '') },
+    label() { return this.modelKey },
     rules() {
       return schemaUtils.getRules(this.fullSchema, this.required, this.options)
     },
