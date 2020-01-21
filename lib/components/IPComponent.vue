@@ -94,23 +94,31 @@ export default {
 
     ipChanged(index){
       console.log('Ip Chnaged');
-      // If its a 0 then always move to the next segment, if not work out if we need to move first
-      if (this.ipCopy[index] === "0") {
+      if(this.ipCopy[index].length > 3){
+        this.ipCopy[index] = 255;
         this.moveToNextIpSegment(index, false);
-      } else if (this.ipCopy[index] < "0") {
-        this.ipCopy[index] = "0";
+      }
+      // If its a 0 then always move to the next segment, if not work out if we need to move first
+      else if (this.ipCopy[index] === 0) {
+        this.moveToNextIpSegment(index, false);
+      } else if (this.ipCopy[index] < 0) {
+        this.ipCopy[index] = 0;
+        this.moveToNextIpSegment(index, false);
+      }
+      else if (this.ipCopy[index] > 255) {
+        this.ipCopy[index] = 255;
         this.moveToNextIpSegment(index, false);
       }else if (
         this.ipCopy[index].length === 3 &&
-        this.ipCopy[index] >= "255"
+        this.ipCopy[index] >= 255
       ) {
-        this.ipCopy[index] = "255";
+        this.ipCopy[index] = 255;
         this.moveToNextIpSegment(index);
       } else if (this.ipCopy[index].length > 3 && index === 3) {
-        this.ipCopy[index] = "255";
+        this.ipCopy[index] = 255;
         this.moveToNextIpSegment(index);
       } else {
-        this.moveToNextIpSegment(index);
+        //this.moveToNextIpSegment(index);
       }
 
       // Update the change
@@ -233,21 +241,24 @@ export default {
       }
       setTimeout(() => {
         // If its a 0 then always move to the next segment, if not work out if we need to move first
-        if (this.ipCopy[index] === "0") {
+        if (this.ipCopy[index] === 0) {
           this.moveToNextIpSegment(index, false);
-        } else if (this.ipCopy[index] < "0") {
-          this.ipCopy[index] = "0";
+        } else if (this.ipCopy[index] < 0) {
+          this.ipCopy[index] = 0;
+        }else if (this.ipCopy[index] > 255) {
+          this.ipCopy[index] = 255;
+          this.moveToNextIpSegment(index, false);
         }else if (
           this.ipCopy[index].length === 3 &&
-          this.ipCopy[index] >= "255"
+          this.ipCopy[index] >= 255
         ) {
-          this.ipCopy[index] = "255";
+          this.ipCopy[index] = 255;
           this.moveToNextIpSegment(index);
         } else if (this.ipCopy[index].length > 3 && index === 3) {
-          this.ipCopy[index] = "255";
+          this.ipCopy[index] = 255;
           this.moveToNextIpSegment(index);
         } else {
-          this.moveToNextIpSegment(index);
+          //this.moveToNextIpSegment(index);
         }
 
         // Update the change
@@ -410,4 +421,6 @@ export default {
 }
 
 </style>
+
+
 
