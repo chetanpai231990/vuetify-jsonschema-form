@@ -1085,6 +1085,9 @@ export default {
       })
     },
     initFromSchema() {
+      if(this.isArray != undefined && this.isArray.toString() == 'true') {
+         localStorage.firsttime =true;
+      }
       let model = this.modelWrapper[this.modelKey]
       // Manage default values
       if (model === undefined) 
