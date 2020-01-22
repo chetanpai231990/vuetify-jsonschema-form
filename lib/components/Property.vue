@@ -961,7 +961,6 @@ export default {
       this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as, remove_entry: false});
     },
     switchChanged(){
-
       if(this.optionalSwitch === true){
         
         if(this.fullSchema.type === 'object'){
@@ -1085,8 +1084,8 @@ export default {
       })
     },
     initFromSchema() {
-      if(this.isArray != undefined && this.isArray.toString() == 'true') {
-         localStorage.firsttime =true;
+      if(this.fullSchema.optional) {
+        localStorage.firsttime =true;
       }
       let model = this.modelWrapper[this.modelKey]
       // Manage default values
@@ -1109,6 +1108,22 @@ export default {
             // Case of select based on an enum
           if ((this.fullSchema.show_as === 'array' && this.fullSchema.items.enum) || this.fullSchema.enum) {
             this.rawSelectItems = this.fullSchema.show_as === 'array' ? this.fullSchema.items.enum : this.fullSchema.enum
+          }
+
+          if(this.fullSchema.choice){
+            if(Object.keys(model)[0] != undefined){
+              this.currentOneOf = JSON.parse(JSON.stringify(this.fullSchema.choice.find(item => item.title === Object.keys(model)[0])));
+            }
+            else{
+              this.currentOneOf = JSON.parse(JSON.stringify(this.fullSchema.choice))[0];
+            }
+          }
+          
+          //Init subModel for current oneOf
+          if (this.currentOneOf) {
+            this.$set(this.subModels, 'currentOneOf', JSON.parse(JSON.stringify(model)))
+          } else {
+            this.$set(this.subModels, 'currentOneOf', {})
           }
           return;
         }
@@ -1232,6 +1247,8 @@ export default {
 
 
 </style>
+
+
 
 
 
