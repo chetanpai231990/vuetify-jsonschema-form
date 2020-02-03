@@ -121,7 +121,7 @@
           :disabled="disabled"
           :readonly="readonly"
           :multiple="fullSchema.show_as === 'array'"
-          @change="change"
+          @change="change;optionalSwitch = true;"
           @input="input"
         >
           <!-- <template slot="prepend" v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" >
@@ -303,6 +303,7 @@
                   :readonly="readonly"
                   @change="change"
                   @input="input"
+                  counter
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-textarea>
@@ -439,6 +440,7 @@
                     :required="required"
                     :rules="rules"
                     @input="octetStringChanged($event)"
+                    counter
       >
         <tooltip slot="append-outer" :html-description="htmlDescription" />
         <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
@@ -812,6 +814,7 @@ export default {
   filters:{
 
     timestampfilter(val){
+
       var d = new Date(0);
       d.setUTCSeconds(new Date(val).getTime());
 
@@ -819,6 +822,7 @@ export default {
 
     },
     convertHextoAscii(val) {
+
       if(val!=null){
         var hex = val.toString();
         var asciiString = "";
@@ -1247,6 +1251,7 @@ export default {
 
 
 </style>
+
 
 
 
