@@ -292,7 +292,7 @@
     <!-- Simple text field -->
     <v-textarea v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
                   style="width:90%"
-                  rows="1"
+                  :rows="modelWrapper[modelKey].trim().split('\n').length"
                   auto-grow
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
@@ -303,7 +303,7 @@
                   :readonly="readonly"
                   @change="change"
                   @input="input"
-                  counter
+                  :counter="!readonly"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-textarea>
@@ -427,8 +427,8 @@
                 {{ label }} : {{ modelWrapper[modelKey] | convertHextoAscii}}
       </v-subheader>
       <v-textarea v-else
-                    rows="1"
-                    
+                    :rows="modelWrapper[modelKey].trim().split('0A').length"
+                    auto-grow
                     style="width:90%"
                     :value="modelWrapper[modelKey] | convertHextoAscii"
                     :name="fullKey"
@@ -440,7 +440,7 @@
                     :required="required"
                     :rules="rules"
                     @input="octetStringChanged($event)"
-                    counter
+                    :counter="!readonly"
       >
         <tooltip slot="append-outer" :html-description="htmlDescription" />
         <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
@@ -994,7 +994,7 @@ export default {
         var arr = [];
         for (var i = 0, l = val.length; i < l; i++) {
           var hex = Number(val.charCodeAt(i)).toString(16);
-          arr.push(hex);
+          arr.push(('0'+ hex).slice(-2));
         }
         return arr.join("");
       }
@@ -1251,6 +1251,7 @@ export default {
 
 
 </style>
+
 
 
 
