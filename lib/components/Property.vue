@@ -845,9 +845,9 @@ export default {
       return (this.fullSchema && this.fullSchema.description) ? md.render(this.fullSchema.description) : null
     },
     fullKey() { return (this.parentKey + this.modelKey ).replace('root.', '') },
-    label() { 
-      return this.modelKey.length === this.fullSchema.title.length && typeof this.modelKey === 'string' ? this.modelKey : this.fullSchema.title 
-      //return (typeof this.modelKey === 'string' ? this.modelKey : '') || this.fullSchema.title 
+    label() { 	
+      return typeof this.modelKey === 'string' ? this.modelKey : '' 	
+      //return (typeof this.modelKey === 'string' ? this.modelKey : '') || this.fullSchema.title 	
     },
     rules() {
       return schemaUtils.getRules(this.fullSchema, this.required, this.options)
