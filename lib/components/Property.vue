@@ -303,7 +303,8 @@
                   :readonly="readonly"
                   @change="change"
                   @input="input"
-                  :counter="!readonly"
+                  :counter="!readonly ? fullSchema.maximum:false"
+                  dense
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-textarea>
@@ -332,6 +333,7 @@
               @change="change"
               @input="optionalSwitch =true; input"
               @focus="dialog=false"
+              dense
       >
         <tooltip slot="append-outer" :html-description="htmlDescription" />
         <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
@@ -399,6 +401,7 @@
                   :required="required"
                   :rules="rules"
                   @input="coordinatesToInteger($event)"
+                  dense
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
@@ -416,6 +419,7 @@
                   :rules="rules"
                   @input="input"
                   @change="change"
+                  dense
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
     </v-text-field>
@@ -440,7 +444,8 @@
                     :required="required"
                     :rules="rules"
                     @input="octetStringChanged($event)"
-                    :counter="!readonly"
+                    :counter="!readonly ? fullSchema.maximum :false"
+                    dense
       >
         <tooltip slot="append-outer" :html-description="htmlDescription" />
         <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
@@ -1251,6 +1256,7 @@ export default {
 
 
 </style>
+
 
 
 
