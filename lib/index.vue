@@ -12,6 +12,7 @@
     @change="e => $emit('change', e)"
     @input="e => $emit('input', e)"
     @typechange="e => $emit('typechange', e)"
+    :isNewform="isNewform"
   />
 </template>
 
@@ -22,12 +23,13 @@ import Property from './components/Property.vue'
 export default {
   name: 'VJsonschemaForm',
   components: { Property },
-  props: ['schema', 'model', 'options'],
+  props: ['schema', 'model', 'options', 'isNewform'],
   data() {
     return { modelWrapper: { root: this.model } }
   },
   computed: {
     initialLoad(){
+      localStorage.isNewForm = this.isNewform;
       return Object.keys(this.modelWrapper.root).length  === 0 ? localStorage.firsttime= true : localStorage.firsttime= false;
     },
     resolvedSchema() {
@@ -51,3 +53,4 @@ export default {
   }
 }
 </script>
+
