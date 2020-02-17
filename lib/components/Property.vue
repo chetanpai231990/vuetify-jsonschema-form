@@ -407,7 +407,9 @@
     </v-text-field>
 
     <!-- Octet String fields as Normal Strings-->
-    <v-text-field v-else-if="fullSchema.show_as === 'hex'"
+    <v-textarea v-else-if="fullSchema.show_as === 'hex'"
+                  :rows="(modelWrapper[modelKey].length /60 )"
+                  auto-grow
                   style="width:90%"
                   v-model="modelWrapper[modelKey]"
                   :name="fullKey"
@@ -420,9 +422,10 @@
                   @input="input"
                   @change="change"
                   dense
+                  :counter="!readonly ? fullSchema.maximum :false"
     >
       <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-text-field>
+    </v-textarea>
 
     <!-- Octet String fields as Type :: HEX -->
     <div v-else-if="fullSchema.show_as === 'octet string'">
@@ -431,9 +434,9 @@
                 {{ label }} : {{ modelWrapper[modelKey] | convertHextoAscii}}
       </v-subheader>
       <v-textarea v-else
-                    :rows="modelWrapper[modelKey].trim().split('0A').length"
+                    :rows="modelWrapper[modelKey].trim().toUpperCase().split('0A').length === 1 ? (modelWrapper[modelKey].length / 60 ) : modelWrapper[modelKey].trim().toUpperCase().split('0A').length"
                     auto-grow
-                    style="width:90%"
+                    style="width:90%"          
                     :value="modelWrapper[modelKey] | convertHextoAscii"
                     :name="fullKey"
                     :label="label"
@@ -787,7 +790,7 @@ const md = require('markdown-it')()
 export default {
   name: 'Property',
   components: { SelectIcon, SelectItem, Tooltip, VueIp, 'v-datetime-picker':DateTimeComponent },
-  props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options', 'firsttime', 'isArray'],
+  props: ['schema', 'modelWrapper', 'modelRoot', 'modelKey', 'parentKey', 'required', 'options', 'firsttime', 'isArray' ,'isNewform'],
   data() {
     return {
       ready: false,
@@ -916,7 +919,6 @@ export default {
       handler() {
         if (this.fullSchema && JSON.stringify(this.fullSchema) !== this.lastFullSchema) {
           this.lastFullSchema = JSON.stringify(this.fullSchema)
-          // console.log('Schema changed', JSON.stringify(this.fullSchema))
           this.initFromSchema()
           this.cleanUpExtraProperties()
           this.applySubModels()
@@ -1100,7 +1102,10 @@ export default {
       // Manage default values
       if (model === undefined) 
       {
-        
+        if(this.fullSchema.optional && localStorage.isNewForm == 'false'){
+          this.optionalSwitch = false;
+          return;
+        }
         model = this.defaultValue(this.fullSchema)
         if (this.fullSchema.default !== undefined)
         {
