@@ -15,6 +15,7 @@
           :rules="rules"
           prepend-icon="event"
           readonly
+          
         />
         <v-datetime-picker
           v-else
