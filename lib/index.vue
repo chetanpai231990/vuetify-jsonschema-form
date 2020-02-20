@@ -30,6 +30,9 @@ export default {
   computed: {
     initialLoad(){
       localStorage.isNewForm = this.isNewform;
+      if(Object.keys(this.modelWrapper.root).length  != 0){
+        localStorage.isNewForm = false;
+      }
       return Object.keys(this.modelWrapper.root).length  === 0 ? localStorage.firsttime= true : localStorage.firsttime= false;
     },
     resolvedSchema() {
