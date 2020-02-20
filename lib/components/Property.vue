@@ -1,165 +1,199 @@
 <template>
-  <!-- Hide const ? Or make a readonly field -->
-  <div v-if="fullSchema && fullSchema.const === undefined && fullSchema['x-display'] !== 'hidden'" class="vjsf-property">
-    
-    <!-- Datetime picker -->
-    <v-layout v-if="schema.show_as === 'timestamp'" row>
-      <v-flex fluid>
-        <v-text-field
-          v-if="disabled"
-          :value="modelWrapper[modelKey]"
-          :label="label"
-          :name="fullKey"
-          :hint="schema.description"
-          :required="required"
-          :rules="rules"
-          prepend-icon="event"
-          readonly
-          
-        />
-        <v-datetime-picker
-          v-else
-          :datetime="modelWrapper[modelKey]"
-          v-model="modelWrapper[modelKey]"
-          :label="label"
-          prepend-icon="event"
-          @change="change"
-          @input="dateTimeChanged"
-          :readonly="readonly"
-        />
-        <tooltip slot="append-outer" :html-description="htmlDescription" />
-      </v-flex>
-    </v-layout>
-    
-    <!-- Date picker -->
-    <v-menu v-else-if="fullSchema.show_as === 'string' && schema.format === 'date'" ref="menu" v-model="menu" :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="modelWrapper[modelKey]"
-            :disabled="disabled"
-            transition="scale-transition"
-            offset-y
-            full-width
-            min-width="290px"
-    >
-      <template v-slot:activator="{on}">
-        <v-text-field
-          v-model="modelWrapper[modelKey]"
-          :label="label"
-          :name="fullKey"
-          :required="required"
-          :rules="rules"
-          :clearable="!required"
-          prepend-icon="event"
-          readonly
-          v-on="on"
-        >
+  <v-form  ref="form">
+    <!-- Hide const ? Or make a readonly field -->
+    <div v-if="fullSchema && fullSchema.const === undefined && fullSchema['x-display'] !== 'hidden'" class="vjsf-property">
+      
+      <!-- Datetime picker -->
+      <v-layout v-if="schema.show_as === 'timestamp'" row>
+        <v-flex fluid>
+          <v-text-field
+            v-if="disabled"
+            :value="modelWrapper[modelKey]"
+            :label="label"
+            :name="fullKey"
+            :hint="schema.description"
+            :required="required"
+            :rules="rules"
+            prepend-icon="event"
+            readonly
+            
+          />
+          <v-datetime-picker
+            v-else
+            :datetime="modelWrapper[modelKey]"
+            v-model="modelWrapper[modelKey]"
+            :label="label"
+            prepend-icon="event"
+            @change="change"
+            @input="dateTimeChanged"
+            :readonly="readonly"
+          />
           <tooltip slot="append-outer" :html-description="htmlDescription" />
-        </v-text-field>
-      </template>
-      <v-date-picker v-model="modelWrapper[modelKey]" no-title scrollable>
-        <v-spacer />
-        <v-btn text class="v-btn--flat" :style="oldFlat" @click="menu = false">
-          Cancel
-        </v-btn>
-        <v-btn text class="v-btn--flat primary--text" @click="$refs.menu.save(modelWrapper[modelKey]); change(); input()">
-          OK
-        </v-btn>
-      </v-date-picker>
-    </v-menu>
+        </v-flex>
+      </v-layout>
+      
+      <!-- Date picker -->
+      <v-menu v-else-if="fullSchema.show_as === 'string' && schema.format === 'date'" ref="menu" v-model="menu" :close-on-content-click="false"
+              :nudge-right="40"
+              :return-value.sync="modelWrapper[modelKey]"
+              :disabled="disabled"
+              transition="scale-transition"
+              offset-y
+              full-width
+              min-width="290px"
+      >
+        <template v-slot:activator="{on}">
+          <v-text-field
+            v-model="modelWrapper[modelKey]"
+            :label="label"
+            :name="fullKey"
+            :required="required"
+            :rules="rules"
+            :clearable="!required"
+            prepend-icon="event"
+            readonly
+            v-on="on"
+          >
+            <tooltip slot="append-outer" :html-description="htmlDescription" />
+          </v-text-field>
+        </template>
+        <v-date-picker v-model="modelWrapper[modelKey]" no-title scrollable>
+          <v-spacer />
+          <v-btn text class="v-btn--flat" :style="oldFlat" @click="menu = false">
+            Cancel
+          </v-btn>
+          <v-btn text class="v-btn--flat primary--text" @click="$refs.menu.save(modelWrapper[modelKey]); change(); input()">
+            OK
+          </v-btn>
+        </v-date-picker>
+      </v-menu>
 
-    <!-- Color picking -->
-    <template v-else-if="fullSchema.format === 'hexcolor'">
-      <template v-if="fullSchema['x-display'] === 'color-picker'">
-        <v-input
-          :name="fullKey"
-          :label="label"
-          :required="required"
-          :rules="rules"
-          :disabled="disabled"
+      <!-- Color picking -->
+      <template v-else-if="fullSchema.format === 'hexcolor'">
+        <template v-if="fullSchema['x-display'] === 'color-picker'">
+          <v-input
+            :name="fullKey"
+            :label="label"
+            :required="required"
+            :rules="rules"
+            :disabled="disabled"
+          >
+            <tooltip slot="append" :html-description="htmlDescription" />
+            &nbsp;&nbsp;
+            <v-menu :close-on-content-click="false" :close-on-click="true" direction="bottom" offset-y>
+              <template v-slot:activator="{on}">
+                <div :style="`background-color: ${modelWrapper[modelKey]};`" :class="modelWrapper[modelKey] ? 'color-picker-trigger' : 'color-picker-trigger color-picker-trigger-empty'" v-on="on" />
+              </template>
+              <color-picker :value="modelWrapper[modelKey]" :preset-colors="options.colors.swatches" @input="(val) => {modelWrapper[modelKey] = val.hex; input(); change()}" />
+            </v-menu>
+          </v-input>
+        </template>
+        <v-input v-else
+                :name="fullKey"
+                :label="label"
+                :required="required"
+                :rules="rules"
+                :disabled="disabled"
         >
           <tooltip slot="append" :html-description="htmlDescription" />
           &nbsp;&nbsp;
-          <v-menu :close-on-content-click="false" :close-on-click="true" direction="bottom" offset-y>
-            <template v-slot:activator="{on}">
-              <div :style="`background-color: ${modelWrapper[modelKey]};`" :class="modelWrapper[modelKey] ? 'color-picker-trigger' : 'color-picker-trigger color-picker-trigger-empty'" v-on="on" />
-            </template>
-            <color-picker :value="modelWrapper[modelKey]" :preset-colors="options.colors.swatches" @input="(val) => {modelWrapper[modelKey] = val.hex; input(); change()}" />
-          </v-menu>
+          <swatches
+            v-model="modelWrapper[modelKey]"
+            :disabled="disabled"
+            :colors="options.colors"
+            :trigger-style="{width:'36px', height:'36px'}"
+            shapes="circles"
+            @input="input();change()"
+          />
         </v-input>
       </template>
-      <v-input v-else
-               :name="fullKey"
-               :label="label"
-               :required="required"
-               :rules="rules"
-               :disabled="disabled"
-      >
-        <tooltip slot="append" :html-description="htmlDescription" />
-        &nbsp;&nbsp;
-        <swatches
-          v-model="modelWrapper[modelKey]"
-          :disabled="disabled"
-          :colors="options.colors"
-          :trigger-style="{width:'36px', height:'36px'}"
-          shapes="circles"
-          @input="input();change()"
-        />
-      </v-input>
-    </template>
 
-    <!-- Select field based on an enum (array or simple value) -->
-    <template v-else-if="(fullSchema.show_as === 'array' && fullSchema.items.enum) || fullSchema.enum">
-      <div class="d-inline-flex">
-        <v-switch v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
+      <!-- Select field based on an enum (array or simple value) -->
+      <template v-else-if="(fullSchema.show_as === 'array' && fullSchema.items.enum) || fullSchema.enum">
+        <div class="d-inline-flex">
+          <v-switch v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
+          <v-select
+            v-model="modelWrapper[modelKey]"
+            style="width:90%"
+            :items="selectItems"
+            :name="fullKey"
+            :label="label"
+            :required="required"
+            :rules="rules"
+            :disabled="disabled"
+            :readonly="readonly"
+            :multiple="fullSchema.show_as === 'array'"
+            @change="change;optionalSwitch = true;"
+            @input="input"
+          >
+            <!-- <template slot="prepend" v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" >
+              <v-switch v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
+            </template> -->
+            <template slot="selection" slot-scope="data">
+              <div class="v-select__selection v-select__selection--comma">
+                <select-icon v-if="itemIcon" :value="data.item" />
+                <span v-if="![null, undefined].includes(data.item)">{{ data.item + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
+              </div>
+            </template>
+            <template slot="item" slot-scope="data">
+              <select-icon v-if="itemIcon" :value="data.item" />
+              <select-item :title="data.item" :options="options" />
+            </template>
+            <tooltip slot="append-outer" :html-description="htmlDescription" />
+          </v-select>
+        </div>
+      </template>
+
+      <!-- Select field based on a oneOf on a simple type (array or simple value) -->
+      <!-- cf https://github.com/mozilla-services/react-jsonfullSchema-form/issues/532 -->
+      <template v-else-if="oneOfSelect">
         <v-select
           v-model="modelWrapper[modelKey]"
-          style="width:90%"
           :items="selectItems"
           :name="fullKey"
           :label="label"
           :required="required"
-          :rules="rules"
           :disabled="disabled"
-          :readonly="readonly"
+          :rules="rules"
+          :clearable="!required"
           :multiple="fullSchema.show_as === 'array'"
-          @change="change;optionalSwitch = true;"
+          :item-text="itemTitle"
+          :item-value="itemKey"
+          @change="change"
           @input="input"
         >
-          <!-- <template slot="prepend" v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" >
-            <v-switch v-model="optionalSwitch" @change="switchChanged()"  color="green"/>
-          </template> -->
           <template slot="selection" slot-scope="data">
             <div class="v-select__selection v-select__selection--comma">
-              <select-icon v-if="itemIcon" :value="data.item" />
-              <span v-if="![null, undefined].includes(data.item)">{{ data.item + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
+              <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
+              <span v-if="![null, undefined].includes(data.item[itemTitle])">{{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
             </div>
           </template>
           <template slot="item" slot-scope="data">
-            <select-icon v-if="itemIcon" :value="data.item" />
-            <select-item :title="data.item" :options="options" />
+            <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
+            <select-item :title="data.item[itemTitle]" :options="options" />
           </template>
           <tooltip slot="append-outer" :html-description="htmlDescription" />
         </v-select>
-      </div>
-    </template>
+      </template>
 
-    <!-- Select field based on a oneOf on a simple type (array or simple value) -->
-    <!-- cf https://github.com/mozilla-services/react-jsonfullSchema-form/issues/532 -->
-    <template v-else-if="oneOfSelect">
-      <v-select
-        v-model="modelWrapper[modelKey]"
-        :items="selectItems"
-        :name="fullKey"
-        :label="label"
-        :required="required"
-        :disabled="disabled"
-        :rules="rules"
-        :clearable="!required"
-        :multiple="fullSchema.show_as === 'array'"
-        :item-text="itemTitle"
-        :item-value="itemKey"
-        @change="change"
-        @input="input"
+      <!-- Select field on an ajax response or from an array in another part of the data -->
+      <v-select v-else-if="fullSchema['x-display'] !== 'list' && (fromUrl || fullSchema['x-fromData'])"
+                v-model="modelWrapper[modelKey]"
+                :items="selectItems"
+                :name="fullKey"
+                :label="label"
+                :no-data-text="options.noDataMessage"
+                :disabled="disabled"
+                :required="required"
+                :rules="rules"
+                :item-text="itemTitle"
+                :item-value="itemKey"
+                :return-object="(fullSchema.show_as === 'array' && fullSchema.items.show_as === 'object') || fullSchema.show_as === 'object'"
+                :clearable="!required"
+                :loading="loading"
+                :multiple="fullSchema.show_as === 'array'"
+                @change="change"
+                @input="input"
       >
         <template slot="selection" slot-scope="data">
           <div class="v-select__selection v-select__selection--comma">
@@ -173,272 +207,202 @@
         </template>
         <tooltip slot="append-outer" :html-description="htmlDescription" />
       </v-select>
-    </template>
 
-    <!-- Select field on an ajax response or from an array in another part of the data -->
-    <v-select v-else-if="fullSchema['x-display'] !== 'list' && (fromUrl || fullSchema['x-fromData'])"
-              v-model="modelWrapper[modelKey]"
-              :items="selectItems"
-              :name="fullKey"
-              :label="label"
-              :no-data-text="options.noDataMessage"
-              :disabled="disabled"
-              :required="required"
-              :rules="rules"
-              :item-text="itemTitle"
-              :item-value="itemKey"
-              :return-object="(fullSchema.show_as === 'array' && fullSchema.items.show_as === 'object') || fullSchema.show_as === 'object'"
-              :clearable="!required"
-              :loading="loading"
-              :multiple="fullSchema.show_as === 'array'"
-              @change="change"
-              @input="input"
-    >
-      <template slot="selection" slot-scope="data">
-        <div class="v-select__selection v-select__selection--comma">
+      <!-- auto-complete field on an ajax response with query -->
+      <v-autocomplete v-else-if="fromUrlWithQuery"
+                      v-model="modelWrapper[modelKey]"
+                      :items="selectItems"
+                      :search-input.sync="q"
+                      :name="fullKey"
+                      :label="label"
+                      :no-data-text="options.noDataMessage"
+                      :disabled="disabled"
+                      :required="required"
+                      :rules="rules"
+                      :item-text="itemTitle"
+                      :item-value="itemKey"
+                      :return-object="(fullSchema.show_as === 'array' && fullSchema.items.show_as === 'object') || fullSchema.show_as === 'object'"
+                      :clearable="!required"
+                      :filter="() => true"
+                      :placeholder="options.searchMessage"
+                      :loading="loading"
+                      :multiple="fullSchema.show_as === 'array'"
+                      @change="change"
+                      @input="input"
+      >
+        <template slot="selection" slot-scope="data">
           <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
-          <span v-if="![null, undefined].includes(data.item[itemTitle])">{{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}</span>
-        </div>
-      </template>
-      <template slot="item" slot-scope="data">
-        <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
-        <select-item :title="data.item[itemTitle]" :options="options" />
-      </template>
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-select>
+          <div v-if="![null, undefined].includes(data.item[itemTitle])">
+            {{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}
+          </div>
+        </template>
+        <template slot="item" slot-scope="data">
+          <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
+          <select-item :title="data.item[itemTitle]" :options="options" />
+        </template>
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+      </v-autocomplete>
 
-    <!-- auto-complete field on an ajax response with query -->
-    <v-autocomplete v-else-if="fromUrlWithQuery"
+      <!-- Long text field in a textarea -->
+      <v-textarea
+        v-else-if="fullSchema.show_as === 'string' && (fullSchema.maxLength && fullSchema.maxLength > 1000 && fullSchema['x-display'] !== 'single-line')"
+        v-model="modelWrapper[modelKey]"
+        :name="fullKey"
+        :label="label"
+        :disabled="disabled"
+        :required="required"
+        :rules="rules"
+        filled
+        class="v-text-field--box v-text-field--enclosed"
+        @change="change"
+        @input="input"
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+      </v-textarea>
+
+      <!-- text field displayed as password -->
+      <v-text-field v-else-if="fullSchema.show_as === 'string' && fullSchema['x-display'] === 'password'"
                     v-model="modelWrapper[modelKey]"
-                    :items="selectItems"
-                    :search-input.sync="q"
                     :name="fullKey"
                     :label="label"
-                    :no-data-text="options.noDataMessage"
                     :disabled="disabled"
                     :required="required"
                     :rules="rules"
-                    :item-text="itemTitle"
-                    :item-value="itemKey"
-                    :return-object="(fullSchema.show_as === 'array' && fullSchema.items.show_as === 'object') || fullSchema.show_as === 'object'"
-                    :clearable="!required"
-                    :filter="() => true"
-                    :placeholder="options.searchMessage"
-                    :loading="loading"
-                    :multiple="fullSchema.show_as === 'array'"
+                    type="password"
                     @change="change"
                     @input="input"
-    >
-      <template slot="selection" slot-scope="data">
-        <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
-        <div v-if="![null, undefined].includes(data.item[itemTitle])">
-          {{ data.item[itemTitle] + (fullSchema.show_as === 'array' && data.index !== modelWrapper[modelKey].length - 1 ? ',&nbsp;' : '') }}
-        </div>
-      </template>
-      <template slot="item" slot-scope="data">
-        <select-icon v-if="itemIcon" :value="data.item[itemIcon]" />
-        <select-item :title="data.item[itemTitle]" :options="options" />
-      </template>
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-autocomplete>
-
-    <!-- Long text field in a textarea -->
-    <v-textarea
-      v-else-if="fullSchema.show_as === 'string' && (fullSchema.maxLength && fullSchema.maxLength > 1000 && fullSchema['x-display'] !== 'single-line')"
-      v-model="modelWrapper[modelKey]"
-      :name="fullKey"
-      :label="label"
-      :disabled="disabled"
-      :required="required"
-      :rules="rules"
-      filled
-      class="v-text-field--box v-text-field--enclosed"
-      @change="change"
-      @input="input"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-textarea>
-
-    <!-- text field displayed as password -->
-    <v-text-field v-else-if="fullSchema.show_as === 'string' && fullSchema['x-display'] === 'password'"
-                  v-model="modelWrapper[modelKey]"
-                  :name="fullKey"
-                  :label="label"
-                  :disabled="disabled"
-                  :required="required"
-                  :rules="rules"
-                  type="password"
-                  @change="change"
-                  @input="input"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-text-field>
-
-    <!-- Handle Null Type :  -->
-    <v-text-field v-else-if="fullSchema.show_as === 'null'"
-                  style="width:90%"
-                  value="null"
-                  :name="fullKey"
-                  :label="label"
-                  :disabled="disabled"
-                  :required="required"
-                  :rules="rules"
-                  :readonly="true"
-                  @change="change"
-                  @input="input"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-text-field>
-
-    <!-- Simple text field -->
-    <v-textarea v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
-                  style="width:90%"
-                  :rows="modelWrapper[modelKey].trim().split('\n').length"
-                  auto-grow
-                  v-model="modelWrapper[modelKey]"
-                  :name="fullKey"
-                  :label="label"
-                  :disabled="disabled"
-                  :required="required"
-                  :rules="rules"
-                  :readonly="readonly"
-                  @change="change"
-                  @input="input"
-                  :counter="!readonly ? fullSchema.maximum:false"
-                  dense
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-textarea>
-
-
-
-    <!-- Simple number fields -->
-    <div v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'">
-      <v-subheader v-if="readonly" 
-              style="height:25px !important;color:white"> 
-              {{ label }} : {{ modelWrapper[modelKey] }}
-      </v-subheader>
-      <v-text-field v-else
-              style="width:90%"
-              v-model.number="modelWrapper[modelKey]"
-              :name="fullKey"
-              :label="label"
-              :min="fullSchema.minimum"
-              :max="fullSchema.maximum"
-              :step="fullSchema.show_as === 'integer' ? 1 : 0.01"
-              :disabled="disabled"
-              :required="required"
-              :rules="rules"
-              :readonly="readonly"
-              type="number"
-              @change="change"
-              @input="optionalSwitch =true; input"
-              @focus="dialog=false"
-              dense
       >
         <tooltip slot="append-outer" :html-description="htmlDescription" />
-        <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
-          <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
-        </template>
-        <template v-slot:append-outer>
-          <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
-            <template v-slot:activator="{ on }">
-              <span v-on="on">
-                <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
-              </span>
-            </template>
-            <v-card-text @click.stop="" style="background-color: whitesmoke" >
-              <v-container grid-list-md>
-                <v-layout wrap>
-                  <v-flex xs20 sm6 md4>
-                    <v-text-field label="Name" :value="label" readonly></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-select
-                      v-model="selectedShowAsItem"
-                      :items="showAsItems"
-                      label="Show As"
-                    ></v-select>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-            <v-card-actions style="background-color: whitesmoke">
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" flat >Cancel</v-btn>
-              <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
-              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:modelKey,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
-            </v-card-actions> 
-          </v-menu>
-        </template>
       </v-text-field>
-    </div>
-    
 
-  <!-- IP Address fields -->
-    <vue-ip v-else-if="fullSchema.show_as === 'ip'"
-          :ip="modelWrapper[modelKey]"
-          :index="index"
-          :on-change="ipChange"
-          :placeholder="true"
-          :readonly="readonly"
-        >
-          {{ label }}
-    </vue-ip>
+      <!-- Handle Null Type :  -->
+      <v-text-field v-else-if="fullSchema.show_as === 'null'"
+                    style="width:90%"
+                    value="null"
+                    :name="fullKey"
+                    :label="label"
+                    :disabled="disabled"
+                    :required="required"
+                    :rules="rules"
+                    :readonly="true"
+                    @change="change"
+                    @input="input"
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+      </v-text-field>
 
-    <!-- Coordinates fields -->
-    <v-text-field v-else-if="fullSchema.show_as === 'coordinates'"
-                  style="width:90%"
-                  :value="modelWrapper[modelKey] | convertCoordinates"
-                  :name="fullKey"
-                  :label="label"
-                  :min="fullSchema.minimum"
-                  :max="fullSchema.maximum"
-                  :disabled="disabled"
-                  :readonly="readonly"
-                  :required="required"
-                  :rules="rules"
-                  @input="coordinatesToInteger($event)"
-                  dense
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-text-field>
-
-    <!-- Octet String fields as Normal Strings-->
-    <v-textarea v-else-if="fullSchema.show_as === 'hex'"
-                  :rows="(modelWrapper[modelKey].length /60 )"
-                  auto-grow
-                  style="width:90%"
-                  v-model="modelWrapper[modelKey]"
-                  :name="fullKey"
-                  :label="label"
-                  :min="fullSchema.minimum"
-                  :max="fullSchema.maximum"
-                  :disabled="disabled"
-                  :required="required"
-                  :rules="rules"
-                  @input="input"
-                  @change="change"
-                  dense
-                  :counter="!readonly ? fullSchema.maximum :false"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-    </v-textarea>
-
-    <!-- Octet String fields as Type :: HEX -->
-    <div v-else-if="fullSchema.show_as === 'octet string'">
-      <v-subheader v-if="readonly" 
-                style="height:25px !important;color:white"> 
-                {{ label }} : {{ modelWrapper[modelKey] | convertHextoAscii}}
-      </v-subheader>
-      <v-textarea v-else
-                    :rows="modelWrapper[modelKey].trim().toUpperCase().split('0A').length === 1 ? (modelWrapper[modelKey].length / 60 ) : modelWrapper[modelKey].trim().toUpperCase().split('0A').length"
+      <!-- Simple text field -->
+      <v-textarea v-else-if="fullSchema.show_as === 'string' || fullSchema.show_as === 'utf8string' || fullSchema.show_as === 'numericstring'"
+                    style="width:90%"
+                    :rows="modelWrapper[modelKey].trim().split('\n').length"
                     auto-grow
-                    style="width:90%"          
-                    :value="modelWrapper[modelKey] | convertHextoAscii"
+                    v-model="modelWrapper[modelKey]"
+                    :name="fullKey"
+                    :label="label"
+                    :disabled="disabled"
+                    :required="required"
+                    :rules="rules"
+                    :readonly="readonly"
+                    @change="change"
+                    @input="input"
+                    :counter="!readonly ? fullSchema.maximum:false"
+                    dense
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+      </v-textarea>
+
+
+      <!-- Simple number fields -->
+      <div v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'">
+          <v-subheader v-if="readonly" 
+                  style="height:25px !important;color:white"> 
+                  {{ label }} : {{ modelWrapper[modelKey] }}
+          </v-subheader>
+          <v-text-field v-else
+                  style="width:90%"
+                  v-model.number="modelWrapper[modelKey]"
+                  :name="fullKey"
+                  :label="label"
+                  :min="fullSchema.minimum"
+                  :max="fullSchema.maximum"
+                  :step="fullSchema.show_as === 'integer' ? 1 : 0.01"
+                  :disabled="disabled"
+                  :required="required"
+                  :rules="rules"
+                  :readonly="readonly"
+                  type="number"
+                  @change="change"
+                  @input="optionalSwitch =true; input"
+                  @focus="dialog=false"
+                  dense
+          >
+            <tooltip slot="append-outer" :html-description="htmlDescription" />
+            <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
+              <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+            </template>
+            <template v-slot:append-outer>
+              <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+                <template v-slot:activator="{ on }">
+                  <span v-on="on">
+                    <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+                  </span>
+                </template>
+                <v-card-text @click.stop="" style="background-color: whitesmoke" >
+                  <v-container grid-list-md>
+                    <v-layout wrap>
+                      <v-flex xs20 sm6 md4>
+                        <v-text-field label="Name" :value="label" readonly></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm6 md4>
+                        <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                      </v-flex>
+                      <v-flex xs12 sm6 md4>
+                        <v-select
+                          v-model="selectedShowAsItem"
+                          :items="showAsItems"
+                          label="Show As"
+                        ></v-select>
+                      </v-flex>
+                      <v-flex xs12 sm6 md12>
+                        <v-textarea 
+                          :rows="1" 
+                          auto-grow 
+                          label="Default" 
+                          placeholder="Set Default Value" 
+                          v-model="defaultValueforType" 
+                          clearable
+                          clear-icon="cancel">
+                        </v-textarea>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card-text>
+                <v-card-actions style="background-color: whitesmoke">
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" flat >Cancel</v-btn>
+                  <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+                  <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:modelKey,type:fullSchema.type,show_as:selectedShowAsItem, default: defaultValueforType})">Save</v-btn>
+                </v-card-actions> 
+              </v-menu>
+            </template>
+          </v-text-field>
+      </div>
+      
+      <!-- IP Address fields -->
+      <vue-ip v-else-if="fullSchema.show_as === 'ip'"
+            :ip="modelWrapper[modelKey]"
+            :index="index"
+            :on-change="ipChange"
+            :placeholder="true"
+            :readonly="readonly"
+          >
+            {{ label }}
+      </vue-ip>
+
+      <!-- Coordinates fields -->
+      <v-text-field v-else-if="fullSchema.show_as === 'coordinates'"
+                    style="width:90%"
+                    :value="modelWrapper[modelKey] | convertCoordinates"
                     :name="fullKey"
                     :label="label"
                     :min="fullSchema.minimum"
@@ -447,172 +411,205 @@
                     :readonly="readonly"
                     :required="required"
                     :rules="rules"
-                    @input="octetStringChanged($event)"
-                    :counter="!readonly ? fullSchema.maximum :false"
+                    @input="coordinatesToInteger($event)"
                     dense
       >
         <tooltip slot="append-outer" :html-description="htmlDescription" />
-        <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
-          <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
-        </template>
-        <template v-slot:append-outer>
-          <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
-            <template v-slot:activator="{ on }">
-              <span v-on="on">
-                <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
-              </span>
-            </template>
-            <v-card-text @click.stop="" style="background-color: whitesmoke" >
-              <v-container grid-list-md>
-                <v-layout wrap>
-                  <v-flex xs20 sm6 md4>
-                    <v-text-field label="Name" :value="label" readonly></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 md4>
-                    <v-select
-                      v-model="selectedShowAsItem"
-                      :items="showAsItemsforString"
-                      label="Show As"
-                    ></v-select>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-            <v-card-actions style="background-color: whitesmoke">
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" flat >Cancel</v-btn>
-              <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
-              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem})">Save</v-btn>
-            </v-card-actions> 
-          </v-menu>
-        </template>
+      </v-text-field>
+
+      <!-- Octet String fields as Normal Strings-->
+      <v-textarea v-else-if="fullSchema.show_as === 'hex'"
+                    :rows="(modelWrapper[modelKey].length /60 )"
+                    auto-grow
+                    style="width:90%"
+                    v-model="modelWrapper[modelKey]"
+                    :name="fullKey"
+                    :label="label"
+                    :min="fullSchema.minimum"
+                    :max="fullSchema.maximum"
+                    :disabled="disabled"
+                    :required="required"
+                    :rules="rules"
+                    @input="input"
+                    @change="change"
+                    :counter="!readonly ? fullSchema.maximum * 2 : false"
+                    dense
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
       </v-textarea>
-    </div>
 
-    <!-- Simple boolean field -->
-    <v-checkbox v-else-if="fullSchema.show_as === 'boolean'"
-                v-model="modelWrapper[modelKey]"
-                :label="label"
-                :name="fullKey"
-                :disabled="disabled"
-                :readonly="readonly"
-                :required="required"
-                :rules="rules"
-                @change="change"
-                @input="input"
-    >
-      <tooltip slot="append" :html-description="htmlDescription" />
-    </v-checkbox>
-
-    <!-- Simple strings array -->
-    <v-combobox
-      v-else-if="fullSchema.show_as === 'array' && fullSchema.items.show_as === 'string'"
-      style="width:90%"
-      v-model="modelWrapper[modelKey]"
-      :name="fullKey"
-      :label="label"
-      :required="required"
-      :rules="rules"
-      :disabled="disabled"
-      chips
-      multiple
-      append-icon=""
-      @change="change"
-      @input="input"
-    >
-      <tooltip slot="append-outer" :html-description="htmlDescription" />
-      <template slot="selection" slot-scope="data">
-        <v-chip close @input="modelWrapper[modelKey].splice(modelWrapper[modelKey].indexOf(data.item)); change(); input()">
-          {{ data.item }}
-        </v-chip>
-      </template>
-    </v-combobox>
-
-    <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
-    <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-      <v-subheader v-show="modelKey!='root' && modelKey !=null && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
-        <v-input>
-          <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
-            <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+      <!-- Octet String fields as Type :: HEX -->
+      <div v-else-if="fullSchema.show_as === 'octet string'">
+        <v-subheader v-if="readonly" 
+                  style="height:25px !important;color:white"> 
+                  {{ label }} : {{ modelWrapper[modelKey] | convertHextoAscii}}
+        </v-subheader>
+        <v-textarea v-else
+                      :rows="modelWrapper[modelKey].trim().toUpperCase().split('0A').length === 1 ? (modelWrapper[modelKey].length / 60 ) : modelWrapper[modelKey].trim().toUpperCase().split('0A').length"
+                      auto-grow
+                      style="width:90%"   
+                      :value="modelWrapper[modelKey] | convertHextoAscii"
+                      :name="fullKey"
+                      :label="label"
+                      :min="fullSchema.minimum"
+                      :max="fullSchema.maximum"
+                      :disabled="disabled"
+                      :readonly="readonly"
+                      :required="required"
+                      :rules="rules"
+                      @input="octetStringChanged($event)"
+                      :counter="!readonly ? fullSchema.maximum :false"
+                      dense
+        >
+          <tooltip slot="append-outer" :html-description="htmlDescription" />
+          <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
+            <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
           </template>
-          <span :style="!readonly ? 'color:black' : '' ">{{ fullSchema.title !=null ? label:modelKey }}</span>  
-        </v-input>
+          <template v-slot:append-outer>
+            <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+              <template v-slot:activator="{ on }">
+                <span v-on="on">
+                  <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+                </span>
+              </template>
+              <v-card-text @click.stop="" style="background-color: whitesmoke" >
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                    <v-flex xs20 sm6 md4>
+                      <v-text-field label="Name" :value="label" readonly></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md4>
+                      <v-select
+                        v-model="selectedShowAsItem"
+                        :items="showAsItemsforString"
+                        label="Show As"
+                      ></v-select>
+                    </v-flex>
+                    <v-flex xs12 sm6 md12>
+                      <v-textarea 
+                        :rows="1" 
+                        clearable
+                        clear-icon="cancel"
+                        placeholder="Set Default Value" 
+                        auto-grow label="Default" 
+                        v-model="defaultValueforType">
+                      </v-textarea>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-card-actions style="background-color: whitesmoke">
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" flat >Cancel</v-btn>
+                <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+                <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem, default: defaultValueforType})">Save</v-btn>
+              </v-card-actions> 
+            </v-menu>
+          </template>
+        </v-textarea>
+      </div>
 
-        <v-icon v-if="foldable && folded">
-          arrow_drop_down
-        </v-icon>
-        <v-icon v-if="foldable && !folded">
-          arrow_drop_up
-        </v-icon>
-      </v-subheader>
+      <!-- Simple boolean field -->
+      <v-checkbox v-else-if="fullSchema.show_as === 'boolean'"
+                  v-model="modelWrapper[modelKey]"
+                  :label="label"
+                  :name="fullKey"
+                  :disabled="disabled"
+                  :readonly="readonly"
+                  :required="required"
+                  :rules="rules"
+                  @change="change"
+                  @input="input"
+      >
+        <tooltip slot="append" :html-description="htmlDescription" />
+        <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
+          <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+        </template>
+      </v-checkbox>
 
-      <v-slide-y-transition>
-        <div v-show="!foldable || !folded" 
-            :style="parentKey !='root.' && modelKey !='root' && isArray === undefined && !readonly ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
-          <p v-if="fullSchema.description">
-            {{ fullSchema.description }}
-          </p>
-          <property v-for="childProp in fullSchema.properties" :key="childProp.key"
-                    v-show="optionalSwitch"
-                    :schema="childProp"
-                    :model-wrapper="modelWrapper[modelKey]"
-                    :model-root="modelRoot"
-                    :model-key="childProp.key"
-                    :parent-key="fullKey + '.'"
-                    :required="!!(fullSchema.required && fullSchema.required.includes(childProp.key))"
-                    :options="options"
-                    @error="e => $emit('error', e)"
-                    @change="e => $emit('change', e)"
-                    @input="e => $emit('input', e)"
-                    @typechange="e => $emit('typechange', e)"
-                    :style="parentKey ==='root.' || modelKey==='root' ? '' : readonly ? '' : 'margin-left:15px;'"
-          />
+      <!-- Simple strings array -->
+      <v-combobox
+        v-else-if="fullSchema.show_as === 'array' && fullSchema.items.show_as === 'string'"
+        style="width:90%"
+        v-model="modelWrapper[modelKey]"
+        :name="fullKey"
+        :label="label"
+        :required="required"
+        :rules="rules"
+        :disabled="disabled"
+        chips
+        multiple
+        append-icon=""
+        @change="change"
+        @input="input"
+      >
+        <tooltip slot="append-outer" :html-description="htmlDescription" />
+        <template slot="selection" slot-scope="data">
+          <v-chip close @input="modelWrapper[modelKey].splice(modelWrapper[modelKey].indexOf(data.item)); change(); input()">
+            {{ data.item }}
+          </v-chip>
+        </template>
+      </v-combobox>
 
-          <!-- Sub containers for allOfs -->
-          <template v-if="fullSchema.allOf && fullSchema.allOf.length">
-            <template v-if="!parentKey && fullSchema.allOf[0].title">
-              <!-- Accordion / expansion panets at root level -->
-              <!-- For vuetify 2 -->
-              <v-expansion-panels
-                v-if="options.vuetifyVersion === 2"
-                :inset="options.accordionMode === 'inset'"
-                :popout="options.accordionMode === 'popout'"
-                focusable
-              >
-                <v-expansion-panel v-for="(currentAllOf, i) in fullSchema.allOf" :key="i">
-                  <v-expansion-panel-header style="font-weight:bold">
-                    {{ currentAllOf.title }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content class="pt-2">
-                    <property
-                      :schema="Object.assign({}, currentAllOf, {type: 'object', title: null})"
-                      :model-wrapper="subModels"
+      <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
+      <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
+        <v-subheader v-show="modelKey!='root' && modelKey !=null && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+          <v-input>
+            <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
+              <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
+            </template>
+            <span :style="!readonly ? 'color:black' : '' ">{{ fullSchema.title !=null ? label:modelKey }}</span>  
+          </v-input>
+
+          <v-icon v-if="foldable && folded">
+            arrow_drop_down
+          </v-icon>
+          <v-icon v-if="foldable && !folded">
+            arrow_drop_up
+          </v-icon>
+        </v-subheader>
+
+        <v-slide-y-transition>
+          <div v-show="!foldable || !folded" 
+              :style="parentKey !='root.' && modelKey !='root' && isArray === undefined && !readonly ?  'border-style: groove;border-width:thin;background-color:#CFD8DC;padding:2px;padding-top:5px' :''">
+            <p v-if="fullSchema.description">
+              {{ fullSchema.description }}
+            </p>
+            <property v-for="childProp in fullSchema.properties" :key="childProp.key"
+                      v-show="optionalSwitch"
+                      :schema="childProp"
+                      :model-wrapper="modelWrapper[modelKey]"
                       :model-root="modelRoot"
-                      :model-key="'allOf-' + i"
-                      :parent-key="parentKey"
+                      :model-key="childProp.key"
+                      :parent-key="fullKey + '.'"
+                      :required="!!(fullSchema.required && fullSchema.required.includes(childProp.key))"
                       :options="options"
                       @error="e => $emit('error', e)"
                       @change="e => $emit('change', e)"
                       @input="e => $emit('input', e)"
                       @typechange="e => $emit('typechange', e)"
-                    />
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-              </v-expansion-panels>
-              <!-- Vor vuetify 1 -->
-              <v-expansion-panel
-                v-else
-                :inset="options.accordionMode === 'inset'"
-                :popout="options.accordionMode === 'popout'"
-                focusable
-              >
-                <v-expansion-panel-content v-for="(currentAllOf, i) in fullSchema.allOf" :key="i">
-                  <span slot="header" style="font-weight:bold">{{ currentAllOf.title }}</span>
-                  <v-card>
-                    <v-card-text>
+                      :style="parentKey ==='root.' || modelKey==='root' ? '' : readonly ? '' : 'margin-left:15px;'"
+            />
+
+            <!-- Sub containers for allOfs -->
+            <template v-if="fullSchema.allOf && fullSchema.allOf.length">
+              <template v-if="!parentKey && fullSchema.allOf[0].title">
+                <!-- Accordion / expansion panets at root level -->
+                <!-- For vuetify 2 -->
+                <v-expansion-panels
+                  v-if="options.vuetifyVersion === 2"
+                  :inset="options.accordionMode === 'inset'"
+                  :popout="options.accordionMode === 'popout'"
+                  focusable
+                >
+                  <v-expansion-panel v-for="(currentAllOf, i) in fullSchema.allOf" :key="i">
+                    <v-expansion-panel-header style="font-weight:bold">
+                      {{ currentAllOf.title }}
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content class="pt-2">
                       <property
                         :schema="Object.assign({}, currentAllOf, {type: 'object', title: null})"
                         :model-wrapper="subModels"
@@ -625,155 +622,182 @@
                         @input="e => $emit('input', e)"
                         @typechange="e => $emit('typechange', e)"
                       />
-                    </v-card-text>
-                  </v-card>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+                <!-- Vor vuetify 1 -->
+                <v-expansion-panel
+                  v-else
+                  :inset="options.accordionMode === 'inset'"
+                  :popout="options.accordionMode === 'popout'"
+                  focusable
+                >
+                  <v-expansion-panel-content v-for="(currentAllOf, i) in fullSchema.allOf" :key="i">
+                    <span slot="header" style="font-weight:bold">{{ currentAllOf.title }}</span>
+                    <v-card>
+                      <v-card-text>
+                        <property
+                          :schema="Object.assign({}, currentAllOf, {type: 'object', title: null})"
+                          :model-wrapper="subModels"
+                          :model-root="modelRoot"
+                          :model-key="'allOf-' + i"
+                          :parent-key="parentKey"
+                          :options="options"
+                          @error="e => $emit('error', e)"
+                          @change="e => $emit('change', e)"
+                          @input="e => $emit('input', e)"
+                          @typechange="e => $emit('typechange', e)"
+                        />
+                      </v-card-text>
+                    </v-card>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </template>
+              <template v-else>
+                <!-- simple objects if we are at first level -->
+                <property
+                  v-for="(currentAllOf, i) in (fullSchema.allOf || [])" :key="i"
+                  :schema="Object.assign({}, currentAllOf, {type: 'object'})"
+                  :model-wrapper="subModels"
+                  :model-root="modelRoot"
+                  :model-key="'allOf-' + i"
+                  :parent-key="parentKey"
+                  :options="options"
+                  @error="e => $emit('error', e)"
+                  @change="e => $emit('change', e)"
+                  @input="e => $emit('input', e)"
+                  @typechange="e => $emit('typechange', e)"
+                />
+              </template>
             </template>
-            <template v-else>
-              <!-- simple objects if we are at first level -->
-              <property
-                v-for="(currentAllOf, i) in (fullSchema.allOf || [])" :key="i"
-                :schema="Object.assign({}, currentAllOf, {type: 'object'})"
-                :model-wrapper="subModels"
-                :model-root="modelRoot"
-                :model-key="'allOf-' + i"
-                :parent-key="parentKey"
-                :options="options"
-                @error="e => $emit('error', e)"
-                @change="e => $emit('change', e)"
-                @input="e => $emit('input', e)"
-                @typechange="e => $emit('typechange', e)"
-              />
+
+            <!-- Sub container with a select for oneOfs -->
+            <template v-if="fullSchema.show_as === 'choice'">
+              <v-select
+                style="width:90%"
+                prepend-icon="view_list"
+                v-model="currentOneOf"
+                :items="fullSchema.choice"
+                :disabled="disabled"
+                :item-value="item => {return oneOfConstProp ? item.properties[oneOfConstProp.key].const : item.title}"
+                :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : 'Type'"
+                :required="oneOfRequired"
+                :rules="oneOfRules"
+                item-text="title"
+                return-object
+                @change="selectionChanged"
+                @input="input"
+                :readonly="readonly"
+              >
+                <tooltip slot="append-outer" :html-description="oneOfConstProp && oneOfConstProp.htmlDescription" />
+              </v-select>
+              <!--{{ currentOneOf }}-->
+              <template v-if="currentOneOf && showCurrentOneOf">
+                <property
+                  :schema="Object.assign({}, currentOneOf, {title: null, type: 'object'})"
+                  :model-wrapper="subModels"
+                  :model-root="modelRoot"
+                  :parent-key="parentKey"
+                  model-key="currentOneOf"
+                  :options="options"
+                  @error="e => $emit('error', e)"
+                  @change="e => $emit('change', e)"
+                  @input="e => $emit('input', e)"
+                  @typechange="e => $emit('typechange', e)"
+                />
+              </template>
             </template>
-          </template>
+          </div>
+        </v-slide-y-transition>
+      </div>
 
-          <!-- Sub container with a select for oneOfs -->
-          <template v-if="fullSchema.show_as === 'choice'">
-            <v-select
-              style="width:90%"
-              prepend-icon="view_list"
-              v-model="currentOneOf"
-              :items="fullSchema.choice"
-              :disabled="disabled"
-              :item-value="item => {return oneOfConstProp ? item.properties[oneOfConstProp.key].const : item.title}"
-              :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : 'Type'"
-              :required="oneOfRequired"
-              :rules="oneOfRules"
-              item-text="title"
-              return-object
-              @change="selectionChanged"
-              @input="input"
-              :readonly="readonly"
-            >
-              <tooltip slot="append-outer" :html-description="oneOfConstProp && oneOfConstProp.htmlDescription" />
-            </v-select>
-            <!--{{ currentOneOf }}-->
-            <template v-if="currentOneOf && showCurrentOneOf">
-              <property
-                :schema="Object.assign({}, currentOneOf, {title: null, type: 'object'})"
-                :model-wrapper="subModels"
-                :model-root="modelRoot"
-                :parent-key="parentKey"
-                model-key="currentOneOf"
-                :options="options"
-                @error="e => $emit('error', e)"
-                @change="e => $emit('change', e)"
-                @input="e => $emit('input', e)"
-                @typechange="e => $emit('typechange', e)"
-              />
-            </template>
-          </template>
-        </div>
-      </v-slide-y-transition>
-    </div>
+      <!-- Tuples array sub container -->
+      <div v-else-if="fullSchema.show_as === 'array' && Array.isArray(fullSchema.items)">
+        <v-subheader :style="foldable ? 'cursor:pointer;' :'' " style="font-weight:1000" class="mt-2" @click="folded = !folded">
+          {{ fullSchema.title !=null ? label:modelKey }}
+          &nbsp;
+          <v-icon v-if="foldable && folded">
+            arrow_drop_down
+          </v-icon>
+          <v-icon v-if="foldable && !folded">
+            arrow_drop_up
+          </v-icon>
+        </v-subheader>
+        <v-slide-y-transition>
+          <div v-show="!foldable || !folded">
+            <p v-if="fullSchema.description">
+              {{ fullSchema.description }}
+            </p>
+            <property v-for="(child, i) in fullSchema.items" :key="i"
+                      :schema="child"
+                      :model-wrapper="modelWrapper[modelKey]"
+                      :model-root="modelRoot"
+                      :model-key="i"
+                      :parent-key="fullKey + '.'"
+                      :options="options"
+                      @error="e => $emit('error', e)"
+                      @change="e => $emit('change', e)"
+                      @input="e => $emit('input', e)"
+                      @typechange="e => $emit('typechange', e)"
+            />
+          </div>
+        </v-slide-y-transition>
+      </div>
 
-    <!-- Tuples array sub container -->
-    <div v-else-if="fullSchema.show_as === 'array' && Array.isArray(fullSchema.items)">
-      <v-subheader :style="foldable ? 'cursor:pointer;' :'' " style="font-weight:1000" class="mt-2" @click="folded = !folded">
-        {{ fullSchema.title !=null ? label:modelKey }}
-        &nbsp;
-        <v-icon v-if="foldable && folded">
-          arrow_drop_down
-        </v-icon>
-        <v-icon v-if="foldable && !folded">
-          arrow_drop_up
-        </v-icon>
-      </v-subheader>
-      <v-slide-y-transition>
-        <div v-show="!foldable || !folded">
-          <p v-if="fullSchema.description">
-            {{ fullSchema.description }}
-          </p>
-          <property v-for="(child, i) in fullSchema.items" :key="i"
-                    :schema="child"
-                    :model-wrapper="modelWrapper[modelKey]"
-                    :model-root="modelRoot"
-                    :model-key="i"
-                    :parent-key="fullKey + '.'"
-                    :options="options"
-                    @error="e => $emit('error', e)"
-                    @change="e => $emit('change', e)"
-                    @input="e => $emit('input', e)"
-                    @typechange="e => $emit('typechange', e)"
-          />
-        </div>
-      </v-slide-y-transition>
-    </div>
-
-    <!-- Dynamic size array of complex types sub container -->
-    <div v-else-if="fullSchema.show_as === 'array'" :key="compKey">
-      <v-layout row class="mt-2 mb-1 pr-1">
-        <v-subheader>{{ label }}</v-subheader>
-        <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
-          <v-icon small>add</v-icon>
-        </v-btn>
-        <v-spacer />
-        <tooltip :html-description="htmlDescription" />
-      </v-layout>
-
-      <v-container v-if="modelWrapper[modelKey] && modelWrapper[modelKey].length" grid-list-md class="pt-0 px-2">
-        <v-layout row wrap>
-          <draggable v-model="modelWrapper[modelKey]" handle=".handle" style="width: 100%;">
-            <v-flex v-for="(itemModel, i) in modelWrapper[modelKey]" :key="i" xs12>
-              <v-card class="array-card">
-                <!-- <v-card-title  class="pa-0 ma-0">
-                  <v-btn :disabled="readonly" v-if="!disabled && fullSchema['x-sortable'] !== false" icon class="handle">
-                    <v-icon>reorder</v-icon>
-                  </v-btn>
-                  <span v-if="itemTitle && modelWrapper[modelKey][i]">{{ modelWrapper[modelKey][i][itemTitle] }}</span>
-                  <v-spacer />
-                  
-                </v-card-title> -->
-                <v-card-text>
-                  <v-btn style="position: relative; float: right; color: white; top: -10px; right: -25px;" small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon @click="modelWrapper[modelKey].splice(i, 1); change(); input()">
-                    <v-icon small color="black">delete</v-icon>
-                  </v-btn>
-                  <property :schema="fullSchema.items"
-                            :model-wrapper="modelWrapper[modelKey]"
-                            :model-root="modelRoot"
-                            :model-key="i"
-                            :parent-key="`${fullKey}.`"
-                            :options="options"
-                            @error="e => $emit('error', e)"
-                            @change="e => $emit('change', e)"
-                            @input="e => $emit('input', e)"
-                            @typechange="e => $emit('typechange', e)"
-                            :is-array="true"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-flex>
-          </draggable>
+      <!-- Dynamic size array of complex types sub container -->
+      <div v-else-if="fullSchema.show_as === 'array'" :key="compKey">
+        <v-layout row class="mt-2 mb-1 pr-1">
+          <v-subheader>{{ label }}</v-subheader>
+          <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
+            <v-icon small>add</v-icon>
+          </v-btn>
+          <v-spacer />
+          <tooltip :html-description="htmlDescription" />
         </v-layout>
-      </v-container>
+
+        <v-container v-if="modelWrapper[modelKey] && modelWrapper[modelKey].length" grid-list-md class="pt-0 px-2">
+          <v-layout row wrap>
+            <draggable v-model="modelWrapper[modelKey]" handle=".handle" style="width: 100%;">
+              <v-flex v-for="(itemModel, i) in modelWrapper[modelKey]" :key="i" xs12>
+                <v-card class="array-card">
+                  <!-- <v-card-title  class="pa-0 ma-0">
+                    <v-btn :disabled="readonly" v-if="!disabled && fullSchema['x-sortable'] !== false" icon class="handle">
+                      <v-icon>reorder</v-icon>
+                    </v-btn>
+                    <span v-if="itemTitle && modelWrapper[modelKey][i]">{{ modelWrapper[modelKey][i][itemTitle] }}</span>
+                    <v-spacer />
+                    
+                  </v-card-title> -->
+                  <v-card-text>
+                    <v-btn style="position: relative; float: right; color: white; top: -10px; right: -25px;" small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon @click="modelWrapper[modelKey].splice(i, 1); change(); input()">
+                      <v-icon small color="black">delete</v-icon>
+                    </v-btn>
+                    <property :schema="fullSchema.items"
+                              :model-wrapper="modelWrapper[modelKey]"
+                              :model-root="modelRoot"
+                              :model-key="i"
+                              :parent-key="`${fullKey}.`"
+                              :options="options"
+                              @error="e => $emit('error', e)"
+                              @change="e => $emit('change', e)"
+                              @input="e => $emit('input', e)"
+                              @typechange="e => $emit('typechange', e)"
+                              :is-array="true"
+                    />
+                  </v-card-text>
+                </v-card>
+              </v-flex>
+            </draggable>
+          </v-layout>
+        </v-container>
+      </div>
+
+
+      <p v-else-if="options.debug">
+        Unsupported type "{{ fullSchema.show_as }}" - {{ fullSchema }}
+      </p>
     </div>
-
-
-    <p v-else-if="options.debug">
-      Unsupported type "{{ fullSchema.show_as }}" - {{ fullSchema }}
-    </p>
-  </div>
+  </v-form>
 </template>
 
 <script>
@@ -817,7 +841,8 @@ export default {
       showAsItemsforString: ["hex"],
       optionalSwitch: true,
       tempObject:{},
-      compKey: 0
+      compKey: 0,
+      defaultValueforType: ''
     }
   },
   filters:{
@@ -924,6 +949,7 @@ export default {
           this.cleanUpExtraProperties()
           this.applySubModels()
           this.ready = true
+          console.log('Done fullschema handler')
         }
       },
       immediate: true
@@ -952,7 +978,15 @@ export default {
       immediate: true
     }
   },
+  mounted(){
+    this.$refs.form.validate();
+  },
   methods: {
+    check(event){
+      console.log('Event '+event);
+      return 100;
+
+    },
     updateSelectItems() {
       const selectItems = selectUtils.getSelectItems(this.rawSelectItems, this.fullSchema, this.modelWrapper, this.modelKey, this.itemKey)
       if (this.fullSchema['x-display'] === 'list') {
@@ -970,7 +1004,7 @@ export default {
       this.$emit('typechange', { name: typename, remove_entry: true});
     },
     typechange(payload){
-      this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as, remove_entry: false});
+      this.$emit('typechange', { name:payload.name,type:payload.type, show_as:payload.show_as, default:payload.default, remove_entry: false});
     },
     switchChanged(){
       if(this.optionalSwitch === true){
@@ -1099,15 +1133,18 @@ export default {
       if(this.fullSchema.optional) {
         localStorage.firsttime =true;
       }
+      console.log('model wrapper & key '+this.modelWrapper[this.modelKey], this.modelKey);
       let model = this.modelWrapper[this.modelKey]
       // Manage default values
       if (model === undefined) 
       {
+        console.log('BEFORE : model '+model);
         if(this.fullSchema.optional && localStorage.isNewForm == 'false'){
           this.optionalSwitch = false;
           return;
         }
         model = this.defaultValue(this.fullSchema)
+        console.log('AFTER : model  '+model);
         if (this.fullSchema.default !== undefined)
         {
           model = JSON.parse(JSON.stringify(this.fullSchema.default))
@@ -1225,6 +1262,7 @@ export default {
       }
 
       this.$set(this.modelWrapper, this.modelKey, model)
+      console.log('Done Initfrom SChema')
     }
   }
 }
