@@ -429,6 +429,7 @@
                     :max="fullSchema.maximum"
                     :disabled="disabled"
                     :required="required"
+                    :readonly="readonly"
                     :rules="rules"
                     @input="input"
                     @change="change"
@@ -525,9 +526,9 @@
                   @input="input"
       >
         <tooltip slot="append" :html-description="htmlDescription" />
-        <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
+        <!-- <template v-slot:prepend v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" >
           <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
-        </template>
+        </template> -->
       </v-checkbox>
 
       <!-- Simple strings array -->
@@ -563,7 +564,6 @@
             </template>
             <span :style="!readonly ? 'color:black' : '' ">{{ fullSchema.title !=null ? label:modelKey }}</span>  
           </v-input>
-
           <v-icon v-if="foldable && folded">
             arrow_drop_down
           </v-icon>
@@ -571,6 +571,9 @@
             arrow_drop_up
           </v-icon>
         </v-subheader>
+        <span v-show="parentKey =='root.' && readonly" style='text-decoration: underline;font-size: 16px;'>
+          {{ fullSchema.title !=null ? label:modelKey }}
+        </span>
 
         <v-slide-y-transition>
           <div v-show="!foldable || !folded" 
@@ -949,7 +952,6 @@ export default {
           this.cleanUpExtraProperties()
           this.applySubModels()
           this.ready = true
-          console.log('Done fullschema handler')
         }
       },
       immediate: true
@@ -983,7 +985,6 @@ export default {
   },
   methods: {
     check(event){
-      console.log('Event '+event);
       return 100;
 
     },
@@ -1133,18 +1134,15 @@ export default {
       if(this.fullSchema.optional) {
         localStorage.firsttime =true;
       }
-      console.log('model wrapper & key '+this.modelWrapper[this.modelKey], this.modelKey);
       let model = this.modelWrapper[this.modelKey]
       // Manage default values
       if (model === undefined) 
       {
-        console.log('BEFORE : model '+model);
         if(this.fullSchema.optional && localStorage.isNewForm == 'false'){
           this.optionalSwitch = false;
           return;
         }
         model = this.defaultValue(this.fullSchema)
-        console.log('AFTER : model  '+model);
         if (this.fullSchema.default !== undefined)
         {
           model = JSON.parse(JSON.stringify(this.fullSchema.default))
@@ -1262,7 +1260,6 @@ export default {
       }
 
       this.$set(this.modelWrapper, this.modelKey, model)
-      console.log('Done Initfrom SChema')
     }
   }
 }
