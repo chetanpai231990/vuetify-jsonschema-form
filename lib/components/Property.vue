@@ -296,7 +296,7 @@
                     style="width:90%"
                     :rows="modelWrapper[modelKey].trim().split('\n').length"
                     auto-grow
-                    v-model="modelWrapper[modelKey]"
+                    v-model.lazy="modelWrapper[modelKey]"
                     :name="fullKey"
                     :label="label"
                     :disabled="disabled"
@@ -314,11 +314,11 @@
 
       <!-- Simple number fields -->
       <div v-else-if="fullSchema.show_as === 'number' || fullSchema.show_as === 'integer'">
-          <v-subheader v-if="readonly" 
+          <!-- <v-subheader v-if="readonly" 
                   style="height:25px !important;color:white"> 
                   {{ label }} : {{ modelWrapper[modelKey] }}
-          </v-subheader>
-          <v-text-field v-else
+          </v-subheader> -->
+          <v-text-field 
                   style="width:90%"
                   v-model.number="modelWrapper[modelKey]"
                   :name="fullKey"
@@ -422,7 +422,8 @@
                     :rows="(modelWrapper[modelKey].length /60 )"
                     auto-grow
                     style="width:90%"
-                    v-model="modelWrapper[modelKey]"
+                    :value="modelWrapper[modelKey]"
+                    @change="modelWrapper[modelKey]= $event"
                     :name="fullKey"
                     :label="label"
                     :min="fullSchema.minimum"
@@ -431,8 +432,6 @@
                     :required="required"
                     :readonly="readonly"
                     :rules="rules"
-                    @input="input"
-                    @change="change"
                     :counter="!readonly ? fullSchema.maximum * 2 : false"
                     dense
       >
@@ -441,11 +440,11 @@
 
       <!-- Octet String fields as Type :: HEX -->
       <div v-else-if="fullSchema.show_as === 'octet string'">
-        <v-subheader v-if="readonly" 
+        <!-- <v-subheader v-if="readonly" 
                   style="height:25px !important;color:white"> 
                   {{ label }} : {{ modelWrapper[modelKey] | convertHextoAscii}}
-        </v-subheader>
-        <v-textarea v-else
+        </v-subheader> -->
+        <v-textarea 
                       :rows="modelWrapper[modelKey].trim().toUpperCase().split('0A').length === 1 ? (modelWrapper[modelKey].length / 60 ) : modelWrapper[modelKey].trim().toUpperCase().split('0A').length"
                       auto-grow
                       style="width:90%"   
@@ -458,7 +457,7 @@
                       :readonly="readonly"
                       :required="required"
                       :rules="rules"
-                      @input="octetStringChanged($event)"
+                      @change="octetStringChanged($event)"
                       :counter="!readonly ? fullSchema.maximum :false"
                       dense
         >
@@ -515,7 +514,7 @@
 
       <!-- Simple boolean field -->
       <v-checkbox v-else-if="fullSchema.show_as === 'boolean'"
-                  v-model="modelWrapper[modelKey]"
+                  v-model.lazy="modelWrapper[modelKey]"
                   :label="label"
                   :name="fullKey"
                   :disabled="disabled"
@@ -859,15 +858,32 @@ export default {
 
     },
     convertHextoAscii(val) {
-
-      if(val!=null){
-        var hex = val.toString();
-        var asciiString = "";
-        for (var i = 0; i < hex.length; i += 2) {
-          asciiString += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+      if(val!=null && val.length % 2 == 0){
+        var isValid = true;
+        for (var i = 0; i < val.toString().length; i++) {
+          if ((i+1) % 2 != 0 ) {
+            if (!(val.charAt(i) >= '0' && val.charAt(i) <= '7')) {
+              isValid = false;
+            } 
+          }else{
+            if(!(val.charAt(i) >= '0' && val.charAt(i) <= '9')){
+              if(val.charAt(i).toLowerCase().match(/[a-f]/i) == null){
+                isValid = false;
+              }
+            }
+          }
         }
-        return asciiString;
+
+        if(isValid) {
+          var hex = val.toString();
+          var asciiString = "";
+          for (var i = 0; i < hex.length; i += 2) {
+            asciiString += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+          }
+          return asciiString;
+        }        
       }
+      return val.toString();
     },
     convertCoordinates(val){
       return val * .000001 ;
@@ -1297,10 +1313,6 @@ export default {
 
 
 </style>
-
-
-
-
 
 
 
