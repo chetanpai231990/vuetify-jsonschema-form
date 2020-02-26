@@ -5,7 +5,6 @@
             {{ label }} : {{ formattedDatetime }}
     </v-subheader> -->
     <v-dialog
-    v-else
     v-model="display"
     lazy
     full-width
