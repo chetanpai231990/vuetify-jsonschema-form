@@ -320,7 +320,7 @@
           </v-subheader> -->
           <v-text-field 
                   style="width:90%"
-                  v-model.number="modelWrapper[modelKey]"
+                  :value="modelWrapper[modelKey]"
                   :name="fullKey"
                   :label="label"
                   :min="fullSchema.minimum"
@@ -331,7 +331,7 @@
                   :rules="rules"
                   :readonly="readonly"
                   type="number"
-                  @change="change"
+                  @change="modelWrapper[modelKey] = Number($event)"
                   @input="optionalSwitch =true; input"
                   @focus="dialog=false"
                   dense
@@ -431,7 +431,7 @@
                     :disabled="disabled"
                     :required="required"
                     :readonly="readonly"
-                    :rules="rules"
+                    :rules="!readonly ? rules: false"
                     :counter="!readonly ? fullSchema.maximum * 2 : false"
                     dense
       >
@@ -456,7 +456,7 @@
                       :disabled="disabled"
                       :readonly="readonly"
                       :required="required"
-                      :rules="rules"
+                      :rules="!readonly ? rules: false"
                       @change="octetStringChanged($event)"
                       :counter="!readonly ? fullSchema.maximum :false"
                       dense
