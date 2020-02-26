@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-subheader v-if="readonly" 
+    <!-- <v-subheader v-if="readonly" 
             style="height:25px !important;color:white"> 
             {{ label }} : {{ formattedDatetime }}
-    </v-subheader>
+    </v-subheader> -->
     <v-dialog
     v-else
     v-model="display"
