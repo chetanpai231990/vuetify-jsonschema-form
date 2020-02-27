@@ -525,9 +525,9 @@
                   @input="input"
       >
         <tooltip slot="append" :html-description="htmlDescription" />
-        <!-- <template v-slot:prepend v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" >
+        <template v-slot:prepend v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" >
           <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
-        </template> -->
+        </template>
       </v-checkbox>
 
       <!-- Simple strings array -->
@@ -556,7 +556,7 @@
 
       <!-- Object sub container with properties that may include a select based on a oneOf and subparts base on a allOf -->
       <div v-else-if="fullSchema.type === 'object' || fullSchema.show_as === 'choice'">
-        <v-subheader v-show="modelKey!='root' && modelKey !=null && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
+        <v-subheader v-show="fullSchema.show_as != 'choice' && modelKey !=null && modelKey!='root' && modelKey != 'currentOneOf' && fullSchema.title != '' && parentKey !='root.'" :style="foldable ? 'cursor:pointer;' :'' " class="mt-2" @click="folded = !folded">
           <v-input>
             <template v-if="fullSchema.optional !=null && fullSchema.optional === true && !readonly" v-slot:prepend>
               <v-switch  v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -750,7 +750,7 @@
       <div v-else-if="fullSchema.show_as === 'array'" :key="compKey">
         <v-layout row class="mt-2 mb-1 pr-1">
           <v-subheader>{{ label }}</v-subheader>
-          <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
+          <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
             <v-icon small>add</v-icon>
           </v-btn>
           <v-spacer />
@@ -1000,6 +1000,9 @@ export default {
     this.$refs.form.validate();
   },
   methods: {
+    updateFormStatus(){
+      localStorage.isNewForm ="true";
+    },
     check(event){
       return 100;
 
