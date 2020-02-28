@@ -423,18 +423,23 @@
                     auto-grow
                     style="width:90%"
                     :value="modelWrapper[modelKey]"
+                    :label="label"
                     @change="modelWrapper[modelKey]= $event"
                     :name="fullKey"
-                    :label="label"
                     :min="fullSchema.minimum"
                     :max="fullSchema.maximum"
                     :disabled="disabled"
                     :required="required"
                     :readonly="readonly"
                     :rules="!readonly ? rules: false"
-                    :counter="!readonly ? fullSchema.maximum * 2 : false"
+                    :counter="!readonly ? fullSchema.maximum : false"
                     dense
       >
+        <template v-slot:label>
+          <div>
+            {{ label +' (' + fullSchema.show_as + ')'}}
+          </div>
+        </template>
         <tooltip slot="append-outer" :html-description="htmlDescription" />
       </v-textarea>
 
@@ -450,7 +455,6 @@
                       style="width:90%"   
                       :value="modelWrapper[modelKey] | convertHextoAscii"
                       :name="fullKey"
-                      :label="label"
                       :min="fullSchema.minimum"
                       :max="fullSchema.maximum"
                       :disabled="disabled"
@@ -458,9 +462,14 @@
                       :required="required"
                       :rules="!readonly ? rules: false"
                       @change="octetStringChanged($event)"
-                      :counter="!readonly ? fullSchema.maximum :false"
+                      :counter="!readonly ? fullSchema.maximum : false"
                       dense
         >
+          <template v-slot:label>
+            <div>
+              {{ label +' (' + 'ascii' + ')'}}
+            </div>
+          </template>
           <tooltip slot="append-outer" :html-description="htmlDescription" />
           <template v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly" v-slot:prepend>
             <v-switch v-model="optionalSwitch" @change="switchChanged()" style="margin-top: 0px; !important;padding-top: 0px !important;" color="green"/>
@@ -858,32 +867,12 @@ export default {
 
     },
     convertHextoAscii(val) {
-      if(val!=null && val.length % 2 == 0){
-        var isValid = true;
-        for (var i = 0; i < val.toString().length; i++) {
-          if ((i+1) % 2 != 0 ) {
-            if (!(val.charAt(i) >= '0' && val.charAt(i) <= '7')) {
-              isValid = false;
-            } 
-          }else{
-            if(!(val.charAt(i) >= '0' && val.charAt(i) <= '9')){
-              if(val.charAt(i).toLowerCase().match(/[a-f]/i) == null){
-                isValid = false;
-              }
-            }
-          }
-        }
-
-        if(isValid) {
-          var hex = val.toString();
-          var asciiString = "";
-          for (var i = 0; i < hex.length; i += 2) {
-            asciiString += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-          }
-          return asciiString;
-        }        
+      var hex = val.toString();
+      var asciiString = "";
+      for (var i = 0; i < hex.length; i += 2) {
+        asciiString += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
       }
-      return val.toString();
+      return asciiString;
     },
     convertCoordinates(val){
       return val * .000001 ;
