@@ -25,6 +25,49 @@
         ref="ipSegment"
       />
     </div>
+    <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click.stop='dialog'>
+      <template v-slot:activator="{ on }">
+        <span v-on="on">
+          <v-icon dark left style="color: #35495e;cursor:pointer;margin-left:50px">settings_applications</v-icon>
+        </span>
+      </template>
+      <v-card-text @click.stop="" style="background-color: whitesmoke" >
+        <v-container grid-list-md>
+          <v-layout wrap>
+            <v-flex xs20 sm6 md4>
+              <v-text-field label="Name" :value="label" readonly></v-text-field>
+            </v-flex>
+            <v-flex xs12 sm6 md4>
+              <v-text-field  label="Current Type" readonly value="ip"></v-text-field>
+            </v-flex>
+            <v-flex xs12 sm6 md4>
+              <v-select
+                v-model="selectedShowAsItem"
+                :items="showAsItems"
+                label="Show As"
+              ></v-select>
+            </v-flex>
+            <v-flex xs12 sm6 md12>
+              <v-textarea 
+                :rows="1" 
+                auto-grow 
+                label="Default" 
+                placeholder="Set Default Value" 
+                v-model="defaultValueforType" 
+                clearable
+                clear-icon="cancel">
+              </v-textarea>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card-text>
+      <v-card-actions style="background-color: whitesmoke">
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" flat >Cancel</v-btn>
+        <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+        <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:'ip',show_as:selectedShowAsItem, default: defaultValueforType})">Save</v-btn>
+      </v-card-actions> 
+    </v-menu>
   </span>
 </template>
 <script>
@@ -50,13 +93,21 @@ export default {
     readonly: {
       type: Boolean,
       default: false
+    },
+    label: {
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
       ipCopy: ["1", "1", "1", "1"],
       valid: false,
-      active: false
+      active: false,
+      dialog: true,
+      selectedShowAsItem:'',
+      showAsItems:["timestamp","coordinates","ip","integer"],
+      defaultValueforType: ''
     };
   },
   beforeMount() {
@@ -72,6 +123,9 @@ export default {
     }
   },
   methods: {
+    typechange(payload){
+      this.$emit('showAsChanged', { name:payload.name,type:payload.type, show_as:payload.show_as, default:payload.default, remove_entry: false});
+    },
     /**
      * Placeholder with dummy IP
      */
