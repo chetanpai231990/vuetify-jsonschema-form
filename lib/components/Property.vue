@@ -26,6 +26,7 @@
             prepend-icon="event"
             @change="change"
             @input="dateTimeChanged"
+            @showAsChanged="e => $emit('typechange', e)"
             :readonly="readonly"
           />
           <tooltip slot="append-outer" :html-description="htmlDescription" />
@@ -390,11 +391,13 @@
       
       <!-- IP Address fields -->
       <vue-ip v-else-if="fullSchema.show_as === 'ip'"
+            :label="label"
             :ip="modelWrapper[modelKey]"
             :index="index"
             :on-change="ipChange"
             :placeholder="true"
             :readonly="readonly"
+            @showAsChanged="e => $emit('typechange', e)"
           >
             {{ label }}
       </vue-ip>
@@ -432,13 +435,57 @@
                     :required="required"
                     :readonly="readonly"
                     :rules="!readonly ? rules: false"
-                    :counter="!readonly ? fullSchema.maximum : false"
+                    :counter="!readonly ? fullSchema.maximum * 2 : false"
                     dense
       >
         <template v-slot:label>
           <div>
             {{ label +' (' + fullSchema.show_as + ')'}}
           </div>
+        </template>
+        <template v-slot:append-outer>
+          <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click='dialog'>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-icon dark left style="color: #35495e;cursor:pointer;margin-top:5px">settings_applications</v-icon>
+              </span>
+            </template>
+            <v-card-text @click.stop="" style="background-color: whitesmoke" >
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs20 sm6 md4>
+                    <v-text-field label="Name" :value="label" readonly></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md4>
+                    <v-text-field  label="Current Type" readonly :value="fullSchema.type"></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md4>
+                    <v-select
+                      v-model="selectedShowAsItem"
+                      :items="showAsItemsforString"
+                      label="Show As"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12 sm6 md12>
+                    <v-textarea 
+                      :rows="1" 
+                      clearable
+                      clear-icon="cancel"
+                      placeholder="Set Default Value" 
+                      auto-grow label="Default" 
+                      v-model="defaultValueforType">
+                    </v-textarea>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+            <v-card-actions style="background-color: whitesmoke">
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat >Cancel</v-btn>
+              <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
+              <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:fullSchema.type,show_as:selectedShowAsItem, default: defaultValueforType})">Save</v-btn>
+            </v-card-actions> 
+          </v-menu>
         </template>
         <tooltip slot="append-outer" :html-description="htmlDescription" />
       </v-textarea>
@@ -691,7 +738,7 @@
                 :items="fullSchema.choice"
                 :disabled="disabled"
                 :item-value="item => {return oneOfConstProp ? item.properties[oneOfConstProp.key].const : item.title}"
-                :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : 'Type'"
+                :label="oneOfConstProp ? (oneOfConstProp.title || oneOfConstProp.key) : label"
                 :required="oneOfRequired"
                 :rules="oneOfRules"
                 item-text="title"
@@ -849,7 +896,7 @@ export default {
         `,
       selectedShowAsItem:'',
       showAsItems:["timestamp","coordinates","ip"],
-      showAsItemsforString: ["hex"],
+      showAsItemsforString: ["hex","octet string"],
       optionalSwitch: true,
       tempObject:{},
       compKey: 0,
