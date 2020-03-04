@@ -742,7 +742,7 @@
                 :rules="oneOfRules"
                 item-text="title"
                 return-object
-                @change="updateFormStatus();selectionChanged"
+                @change="selectionChanged"
                 @input="input"
                 :readonly="readonly"
               >
