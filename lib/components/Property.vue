@@ -297,15 +297,14 @@
                     style="width:90%"
                     :rows="modelWrapper[modelKey].trim().split('\n').length"
                     auto-grow
-                    v-model.lazy="modelWrapper[modelKey]"
+                    :value="modelWrapper[modelKey]"
                     :name="fullKey"
                     :label="label"
                     :disabled="disabled"
                     :required="required"
                     :rules="rules"
                     :readonly="readonly"
-                    @change="change"
-                    @input="input"
+                    @change="modelWrapper[modelKey] = $event"
                     :counter="!readonly ? fullSchema.maximum:false"
                     dense
       >
@@ -743,7 +742,7 @@
                 :rules="oneOfRules"
                 item-text="title"
                 return-object
-                @change="selectionChanged"
+                @change="updateFormStatus();selectionChanged"
                 @input="input"
                 :readonly="readonly"
               >
