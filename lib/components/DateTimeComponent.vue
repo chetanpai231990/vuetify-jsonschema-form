@@ -119,7 +119,7 @@
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" flat >Cancel</v-btn>
         <!-- <v-btn color="blue darken-1" flat @click="dialog=true;reset(label)">Reset</v-btn> -->
-        <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:'timestamp',show_as:selectedShowAsItem, default: defaultValueforType})">Save</v-btn>
+        <v-btn color="blue darken-1" flat @click="dialog=true;typechange({name:label,type:'integer',show_as:selectedShowAsItem, default: defaultValueforType})">Save</v-btn>
       </v-card-actions> 
     </v-menu>
     
@@ -312,4 +312,6 @@ export default {
   }
 };
 </script>
+
+
 
