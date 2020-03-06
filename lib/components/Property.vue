@@ -804,6 +804,9 @@
       <!-- Dynamic size array of complex types sub container -->
       <div v-else-if="fullSchema.show_as === 'array'" :key="compKey">
         <v-layout row class="mt-2 mb-1 pr-1">
+          <div v-if="fullSchema.optional != null && fullSchema.optional === true && !readonly">
+            <v-switch v-model="optionalSwitch" @change="switchChanged()" color="green"/>
+          </div>
           <v-subheader>{{ label }}</v-subheader>
           <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
             <v-icon small>add</v-icon>
@@ -1084,6 +1087,7 @@ export default {
     },
     selectionChanged(){
       this.modelWrapper[this.modelKey] ={};
+      this.updateFormStatus();
     },
     convertAsciitoHex(val) {
       //for Octect string
@@ -1351,6 +1355,7 @@ export default {
 
 
 </style>
+
 
 
 
