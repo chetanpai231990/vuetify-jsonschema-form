@@ -14,7 +14,7 @@
       >
       <v-text-field
         slot="activator"
-        style="width:85%"
+        style="width:100%"
         :label="label"
         :value="formattedDatetime"
         :disabled="disabled"
