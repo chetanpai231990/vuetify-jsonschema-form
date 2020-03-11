@@ -808,11 +808,11 @@
             <v-switch v-model="optionalSwitch" @change="switchChanged()" color="green"/>
           </div>
           <v-subheader>{{ label }}</v-subheader>
-          <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
+          <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon :color="fullSchema.minimum > 5 ? 'error': 'primary'" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
             <v-icon v-if="isDefaultsAdded ? true : addDefaults()" small>add</v-icon>
           </v-btn>
-          <v-spacer />
-          <tooltip :html-description="htmlDescription" />
+          <!-- <v-spacer /> -->
+          <tooltip :html-description="fullSchema.minimum > 5 ? 'minimum items should be: '+fullSchema.minimum: ''" />
         </v-layout>
 
         <v-container v-if="modelWrapper[modelKey] && modelWrapper[modelKey].length" grid-list-md class="pt-0 px-2">
@@ -1042,7 +1042,7 @@ export default {
     addDefaults() {
       //restrict for re-use and import functionality
       if(localStorage.isNewForm == "false") return true;
-      
+
       //restrict if minimum items to be added is greater than 5.
       if(this.fullSchema.minimum == 0 || this.fullSchema.minimum > 5) return true;
 
@@ -1369,6 +1369,14 @@ export default {
 
 
 </style>
+
+
+
+
+
+
+
+
 
 
 
