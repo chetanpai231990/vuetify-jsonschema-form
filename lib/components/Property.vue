@@ -808,11 +808,23 @@
             <v-switch v-model="optionalSwitch" @change="switchChanged()" color="green"/>
           </div>
           <v-subheader>{{ label }}</v-subheader>
-          <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon :color="fullSchema.minimum > 5 ? 'error': 'primary'" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
-            <v-icon v-if="isDefaultsAdded ? true : addDefaults()" small>add</v-icon>
-          </v-btn>
+          <v-tooltip
+            bottom
+            dark
+            :open-delay="500"
+            :open-on-hover="true"
+            color="black"
+          >
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon :color="modelWrapper[modelKey].length < fullSchema.minimum ? 'error': 'primary'" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
+              <v-icon v-if="isDefaultsAdded ? true : addDefaults()" small>add</v-icon>
+            </v-btn>
+            </template>
+            <span>Min: {{fullSchema.minimum}} And Max: {{fullSchema.maximum}}</span>
+          </v-tooltip>
+          
           <!-- <v-spacer /> -->
-          <tooltip :html-description="fullSchema.minimum > 5 ? 'minimum items should be: '+fullSchema.minimum: ''" />
+          <!-- <tooltip :html-description="fullSchema.minimum > 5 ? 'minimum items should be: '+fullSchema.minimum: ''" /> -->
         </v-layout>
 
         <v-container v-if="modelWrapper[modelKey] && modelWrapper[modelKey].length" grid-list-md class="pt-0 px-2">
@@ -1203,6 +1215,9 @@ export default {
       })
     },
     initFromSchema() {
+      if(localStorage.isNewForm == 'false') {
+        this.isDefaultsAdded = true;
+      }
       if(this.fullSchema.optional) {
         localStorage.firsttime =true;
       }
@@ -1369,18 +1384,5 @@ export default {
 
 
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
