@@ -1040,6 +1040,9 @@ export default {
   },
   methods: {
     addDefaults() {
+      //restrict for re-use and import functionality
+      if(localStorage.isNewForm == "false") return true;
+      
       //restrict if minimum items to be added is greater than 5.
       if(this.fullSchema.minimum == 0 || this.fullSchema.minimum > 5) return true;
 
