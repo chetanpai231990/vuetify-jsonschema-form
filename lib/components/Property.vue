@@ -809,7 +809,7 @@
           </div>
           <v-subheader>{{ label }}</v-subheader>
           <v-btn small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon color="primary" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
-            <v-icon small>add</v-icon>
+            <v-icon v-if="isDefaultsAdded ? true : addDefaults()" small>add</v-icon>
           </v-btn>
           <v-spacer />
           <tooltip :html-description="htmlDescription" />
@@ -902,7 +902,8 @@ export default {
       optionalSwitch: true,
       tempObject:{},
       compKey: 0,
-      defaultValueforType: ''
+      defaultValueforType: '',
+      isDefaultsAdded: false
     }
   },
   filters:{
@@ -1038,6 +1039,16 @@ export default {
     this.$refs.form.validate();
   },
   methods: {
+    addDefaults() {
+      //restrict if minimum items to be added is greater than 5.
+      if(this.fullSchema.minimum == 0 || this.fullSchema.minimum > 5) return true;
+
+      for(let i=0;i < this.fullSchema.minimum;i++){
+        this.modelWrapper[this.modelKey].push(this.fullSchema.items.default || this.defaultValue(this.fullSchema.items))
+      }
+      this.isDefaultsAdded =true;
+      return true;
+    },
     updateFormStatus(){
       localStorage.isNewForm ="true";
     },
