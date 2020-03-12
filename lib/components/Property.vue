@@ -816,7 +816,7 @@
             color="black"
           >
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon :color="modelWrapper[modelKey].length < fullSchema.minimum ? 'error': 'primary'" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
+              <v-btn v-on="on" small :disabled="readonly" v-if="!disabled && !(fromUrl || fullSchema.fromData)" icon :color="modelWrapper[modelKey].length < fullSchema.minimum || modelWrapper[modelKey].length > fullSchema.maximum ? 'error': 'primary'" @click="updateFormStatus();modelWrapper[modelKey].push(fullSchema.items.default || defaultValue(fullSchema.items)); change(); input();compKey +=1 ;">
               <v-icon v-if="isDefaultsAdded ? true : addDefaults()" small>add</v-icon>
             </v-btn>
             </template>
@@ -1054,6 +1054,9 @@ export default {
     addDefaults() {
       //restrict for re-use and import functionality
       if(localStorage.isNewForm == "false") return true;
+
+      //check if current array length and minimum
+      if(this.fullSchema.minimum == this.modelWrapper[this.modelKey].length) return true;
 
       //restrict if minimum items to be added is greater than 5.
       if(this.fullSchema.minimum == 0 || this.fullSchema.minimum > 5) return true;
@@ -1384,6 +1387,7 @@ export default {
 
 
 </style>
+
 
 
 
