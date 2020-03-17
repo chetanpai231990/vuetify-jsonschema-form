@@ -28,6 +28,7 @@
             @input="dateTimeChanged"
             @showAsChanged="e => $emit('typechange', e)"
             :readonly="readonly"
+            @valueEdited="dateValueEdited($event)"
           />
           <tooltip slot="append-outer" :html-description="htmlDescription" />
         </v-flex>
@@ -1154,6 +1155,9 @@ export default {
     dateTimeChanged(){
       this.modelWrapper[this.modelKey]= Math.floor(new Date(this.modelWrapper[this.modelKey]).getTime()/1000);
       this.$emit('input', { key: this.fullKey.replace(/allOf-([0-9]+)\./g, ''), model: Math.floor(new Date(this.modelWrapper[this.modelKey]).getTime()/1000) })
+    },
+    dateValueEdited(val) {
+      this.modelWrapper[this.modelKey] = Math.floor(new Date(val).getTime() / 1000);
     },
     input() {
       
