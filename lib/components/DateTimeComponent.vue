@@ -4,19 +4,24 @@
             style="height:25px !important;color:white"> 
             {{ label }} : {{ formattedDatetime }}
     </v-subheader> -->
-    <v-dialog
+    <v-menu
       v-model="display"
       lazy
-      full-width
       :width="width"
       :disabled="readonly"
+      :close-on-content-click="false"
       style="display: inline-block;"
+      transition="scale-transition"
+      offset-y
+      max-width="290px"
+      min-width="290px"
       >
       <v-text-field
         slot="activator"
         style="width:100%"
         :label="label"
         :value="formattedDatetime"
+        @change="dateTimeEdited($event)"
         :disabled="disabled"
         :loading="loading"
         :error-messages="errorMessages"
@@ -25,7 +30,8 @@
         :hide-details="hideDetails"
         :append-icon="appendIcon"
         :prepend-icon="prependIcon"
-        readonly
+        :hint="!readonly ? 'YYYY-MM-DD HH:mm:ss': ''"
+        :persistent-hint="!readonly"
       >
       
       </v-text-field>
@@ -44,7 +50,6 @@
             </v-tab>
             <v-tab-item key="calendar">
               <v-date-picker
-                full-width
                 v-model="datePart"
                 scrollable
                 :locale="locale"
@@ -55,12 +60,12 @@
             <v-tab-item key="timer">
               <v-time-picker
                 ref="timer"
-                full-width
                 class="v-time-picker-custom"
                 v-model="timePart"
                 scrollable
                 :format="timePickerFormat"
                 actions
+                @change="timeChanged()"
               >
               </v-time-picker>
             </v-tab-item>
@@ -78,7 +83,7 @@
           </slot>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-menu>
     <v-menu v-if="!readonly" transition="slide-x-transition" bottom left :close-on-content-click.stop='dialog'>
       <template v-slot:activator="{ on }">
         <span v-on="on">
@@ -151,7 +156,7 @@ export default {
     },
     width: {
       type: Number,
-      default: 320
+      default: 100
     },
     format: {
       type: String,
@@ -217,13 +222,18 @@ export default {
       selectedShowAsItem:'',
       showAsItems:["timestamp","coordinates","ip","integer"],
       dialog: true,
-      defaultValueforType: ''
+      defaultValueforType: '',
+      editedDate: new Date().toISOString().substr(0, 10),
+      timeUpdated: false
     };
+  },
+  created() {
+    console.log('created date time');
   },
   mounted() {
 
     if (this.datetime instanceof Date) {
-      this.selectedDatetime = this.datetime;
+      this.selectedDatetime = this.datetime.toUTCString();
     } else if (
       typeof this.datetime === "string" ||
       this.datetime instanceof String
@@ -280,19 +290,45 @@ export default {
         this.selectedDatetime = input.toDate();
       }
     },
-    formattedDatetime() {
+    formattedDatetime: {
+      get(){
+        console.log('Datetime value '+this.datetime);
+        var d = new Date(0);
+        
+        d.setUTCSeconds(
+          Number(this.datetime) === 1 || Number(this.datetime) === 0
+            ? Math.floor(new Date().getTime()/1000)
+            : Math.floor(new Date(this.datetime).getTime())
+        );
+        this.datetime = d;
+        var tempDate = d.toUTCString();
 
-      var d = new Date(0);
-      d.setUTCSeconds(
-        Number(this.datetime) === 1 || Number(this.datetime) === 0
-          ? Math.floor(new Date().getTime()/1000)
-          : Math.floor(new Date(this.datetime).getTime())
-      );
-      this.datetime = d;
-      return this.datetime ? moment(this.datetime).format(this.format) : "";
+        //this.datetime = tempDate;//.toUTCString();
+        if (!this.timeUpdated) {
+          return moment(tempDate)
+            .utc()
+            .format("YYYY-MM-DD HH:mm:ss");
+        } else {
+          return moment(this.datetime).format("YYYY-MM-DD HH:mm:ss");
+        } 
+      },
+      set(val){
+        let d = new Date(Number(val));
+        this.datetime = d.toUTCString();
+      }
     }
   },
   methods: {
+    timeChanged() {
+      this.timeUpdated = true;
+    },
+    dateTimeEdited(val) {
+      let d = val.split(" ")[0] + " " + val.split(" ")[1];
+      this.timeUpdated = true;
+      this.datetime = Math.floor(new Date(d).getTime() / 1000);
+      this.selectedDatetime = new Date(d);
+      this.$emit("valueEdited", d);
+    },
     typechange(payload){
       this.$emit('showAsChanged', { name:payload.name,type:payload.type, show_as:payload.show_as, default:payload.default, remove_entry: false});
     },
@@ -306,12 +342,11 @@ export default {
       this.display = false;
       this.activeTab = 0;
       this.$refs.timer.selectingHour = true;
-
-      //this.$emit("input", null);
     }
   }
 };
 </script>
+
 
 
 
